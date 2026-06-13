@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>REBUS Secure — Вхід</title>
   <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="icon" type="image/png" href="assets/favicon-dark.png" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" type="image/png" href="assets/favicon-light.png" media="(prefers-color-scheme: light)" />
   <link rel="stylesheet" href="css/styles.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/auth.js" defer></script>
 </head>
 <body class="page-bg login-bg">
-  <main class="center-logo" aria-label="REBUS Secure login">
-    <div class="rebus-word">REBUS</div>
-    <button id="loginBtn" class="login-word" type="button">ВХІД</button>
+  <main class="login-entry" aria-label="REBUS Secure login">
+    <button id="loginBtn" class="login-word" type="button" aria-label="Увійти через Google">ВХІД</button>
   </main>
-  <div class="corner-status"><span id="loginDot" class="dot"></span><span id="loginStatus">Готово</span></div>
   <script>
     window.addEventListener('DOMContentLoaded', async () => {
       const { $, startGoogleLogin, routeIfAlreadyLoggedIn } = window.rebusAuth;

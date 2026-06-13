@@ -85,7 +85,7 @@
         <div class="panel pad">
           <h3>Адмін-портал</h3>
           <p class="muted">Доступний тільки адміністраторам.</p>
-          <a class="ghost-link" href="https://admin.rebus-secure.com">Перейти</a>
+          <a id="adminLink" class="ghost-link" href="https://admin.rebus-secure.com" hidden>Перейти</a><span id="adminNotice" class="muted">Доступно лише адміністраторам.</span>
         </div>
       </section>
     </main>
@@ -101,7 +101,7 @@
       const user = ctx.session.user;
       const profile = ctx.profile || {};
       const name = profile.full_name || profile.name || user.user_metadata?.full_name || user.email;
-      const role = profile.role || 'user';
+      const role = A.normalizeRole(profile.role || 'user');
       const status = profile.status || (profile.is_active === false ? 'inactive' : 'active');
 
       A.$('userName').textContent = name;
@@ -111,6 +111,13 @@
       A.$('profileStatus').textContent = status === 'active' ? 'Активний' : status;
       A.$('profileSync').textContent = new Date().toLocaleString('uk-UA');
       A.$('roleText').textContent = A.roleLabel(role);
+
+      const adminLink = A.$('adminLink');
+      const adminNotice = A.$('adminNotice');
+      if (A.isAdminRole(role)) {
+        if (adminLink) adminLink.hidden = false;
+        if (adminNotice) adminNotice.textContent = 'Адмін-доступ підтверджено. Можна перейти до адмін-порталу.';
+      }
 
       A.$('logoutBtn')?.addEventListener('click', async () => { await A.supabase.auth.signOut(); location.href = 'index.html'; });
     });

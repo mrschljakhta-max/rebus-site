@@ -1,8 +1,44 @@
-# REBUS Secure User Portal
+# REBUS Secure — User Portal
 
-Користувацький портал REBUS Secure.
+Пакет для `rebus-secure.com`.
 
-- `index.html` — стартова сторінка з входом через Google
-- `verify-2fa.html` — сторінка підтвердження 2FA
-- `cabinet.html` — особистий кабінет користувача
-- `access-denied.html` — сторінка відмови в доступі
+## Логіка входу
+
+- `rebus-secure.com` — користувацький портал.
+- Після Google OAuth користувач завжди переходить на власну сторінку `verify-2fa.html`.
+- Після успішної 2FA користувач завжди переходить у `cabinet.html`.
+- Якщо в користувача роль `admin` або `superadmin`, він НЕ перекидається автоматично в адмінку. Він просто отримує в кабінеті додаткове посилання на `https://admin.rebus-secure.com`.
+- Звичайні ролі `user` та `operator` працюють тільки в користувацькому порталі.
+
+## Supabase Redirect URLs
+
+Додай у Supabase Authentication → URL Configuration:
+
+```text
+https://rebus-secure.com/
+https://rebus-secure.com/verify-2fa.html
+https://rebus-secure.com/cabinet.html
+https://admin.rebus-secure.com/
+https://admin.rebus-secure.com/index.html
+https://admin.rebus-secure.com/dashboard.html
+https://admin.rebus-secure.com/verify-2fa.html
+```
+
+## Таблиці доступу
+
+Код шукає профіль у такому порядку:
+
+1. `rebus_profiles`
+2. `rebus_admin_access`
+
+Підтримувані ролі:
+
+```text
+user
+operator
+admin
+superadmin
+```
+
+Для користувацького порталу дозволені всі 4 ролі.
+Для переходу в адмін-портал кнопка показується тільки `admin` і `superadmin`.
