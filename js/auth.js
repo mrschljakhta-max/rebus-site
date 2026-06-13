@@ -1,5 +1,6 @@
 const cfg = window.REBUS_CONFIG || {};
-const supabaseClient = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+const supabaseKey = cfg.SUPABASE_PUBLISHABLE_KEY || cfg.SUPABASE_ANON_KEY;
+const supabaseClient = window.supabase.createClient(cfg.SUPABASE_URL, supabaseKey);
 
 const $ = (id) => document.getElementById(id);
 const statusEl = () => $('status') || $('loginStatus');
