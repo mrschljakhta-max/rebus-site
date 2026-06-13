@@ -78,11 +78,11 @@ function roleLabel(role) {
 }
 
 function isAdminRole(role) {
-  return ['admin', 'superadmin'].includes(normalizeRole(role));
+  return ['admin', 'superadmin', 'super_admin'].includes(normalizeRole(role));
 }
 
 function isUserPortalAllowed(role) {
-  return ['user', 'operator', 'admin', 'superadmin'].includes(normalizeRole(role));
+  return ['user', 'operator', 'admin', 'superadmin', 'super_admin'].includes(normalizeRole(role));
 }
 
 function profileRole(profile, source = '') {
