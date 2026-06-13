@@ -19,8 +19,14 @@
       </div>
       <h1 class="title">Доступ не надано</h1>
       <p class="sub">Цей Google-акаунт ще не доданий до REBUS Secure або має неактивний статус.</p>
+      <p id="deniedEmail" class="muted small-note"></p>
       <a class="ghost-link" href="index.html">Повернутися</a>
     </section>
   </main>
+<script>
+    const deniedEmail = sessionStorage.getItem('rebus_denied_email');
+    const el = document.getElementById('deniedEmail');
+    if (deniedEmail && el) el.textContent = `Email: ${deniedEmail}`;
+  </script>
 </body>
 </html>

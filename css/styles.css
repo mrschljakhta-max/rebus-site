@@ -132,3 +132,5 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   .twofa-wrap{padding-right:24px;justify-content:center}
 }
 .corner-status{display:none!important}
+
+.small-note{margin-top:-12px;margin-bottom:20px;font-size:13px;color:rgba(255,255,255,.55)}

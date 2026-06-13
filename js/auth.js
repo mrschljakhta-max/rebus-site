@@ -16,10 +16,11 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
 async function absorbOAuthSessionFromUrl() {
-  // Supabase OAuth іноді повертає access_token у hash (#access_token=...).
-  // На GitHub Pages/static hosting сесія не завжди встигає зберегтися до першої перевірки,
-  // через що verify-2fa.html бачить "немає сесії" і кидає назад на стартову.
   const hash = window.location.hash || '';
   if (!hash.includes('access_token=')) return null;
 
@@ -36,11 +37,9 @@ async function absorbOAuthSessionFromUrl() {
 
   if (error) throw error;
 
-  // Прибираємо токени з адресного рядка, але залишаємо користувача на цій же сторінці.
   history.replaceState(null, document.title, window.location.pathname + window.location.search);
   return data.session;
 }
-
 
 async function getSession() {
   try {
@@ -88,33 +87,86 @@ function isUserPortalAllowed(role) {
 
 function profileRole(profile, source = '') {
   if (!profile) return 'user';
-  const role = profile.role || profile.access_role || profile.user_role || profile.permission || profile.level;
-  if (role) return normalizeRole(role);
 
+  const role =
+    profile.role ||
+    profile.access_role ||
+    profile.user_role ||
+    profile.permission ||
+    profile.level ||
+    profile.status_role;
+
+  if (role) return normalizeRole(role);
   if (source === 'admin') return 'admin';
   return 'user';
 }
 
-async function fetchProfile(email) {
-  if (!email) return null;
+function prepareProfile(row, source) {
+  if (!row) return null;
+  return { ...row, _source: source, role: profileRole(row, source) };
+}
 
-  try {
-    const { data, error } = await supabaseClient
-      .from(cfg.PROFILE_TABLE || 'rebus_profiles')
-      .select('*')
-      .eq('email', email)
-      .maybeSingle();
-    if (!error && data) return { ...data, _source: 'profile', role: profileRole(data, 'profile') };
-  } catch (_) {}
+async function tryProfileByEmail(tableName, email, source) {
+  const cleanEmail = normalizeEmail(email);
+  if (!cleanEmail) return null;
 
-  try {
-    const { data, error } = await supabaseClient
-      .from(cfg.ADMIN_TABLE || 'rebus_admin_access')
-      .select('*')
-      .eq('email', email)
-      .maybeSingle();
-    if (!error && data) return { ...data, _source: 'admin', role: profileRole(data, 'admin') };
-  } catch (_) {}
+  // 1) Основний сценарій: адмінка створює запис у rebus_profiles.email.
+  // ilike прибирає проблему регістру літер у Google email.
+  const { data, error } = await supabaseClient
+    .from(tableName)
+    .select('*')
+    .ilike('email', cleanEmail)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.warn(`[REBUS] ${tableName} email lookup error:`, error.message);
+    return null;
+  }
+
+  return prepareProfile(data, source);
+}
+
+async function tryProfileById(tableName, userId, source) {
+  if (!userId) return null;
+
+  // Додаткова страховка: якщо в майбутньому id профілю дорівнюватиме auth.users.id.
+  const { data, error } = await supabaseClient
+    .from(tableName)
+    .select('*')
+    .eq('id', userId)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.warn(`[REBUS] ${tableName} id lookup skipped:`, error.message);
+    return null;
+  }
+
+  return prepareProfile(data, source);
+}
+
+async function fetchProfile(userOrEmail) {
+  const email = typeof userOrEmail === 'string' ? userOrEmail : userOrEmail?.email;
+  const userId = typeof userOrEmail === 'string' ? null : userOrEmail?.id;
+
+  const profileTable = cfg.PROFILE_TABLE || 'rebus_profiles';
+  const adminTable = cfg.ADMIN_TABLE || 'rebus_admin_access';
+
+  // Головне джерело прав для користувацького порталу.
+  let profile = await tryProfileByEmail(profileTable, email, 'profile');
+  if (profile) return profile;
+
+  profile = await tryProfileById(profileTable, userId, 'profile');
+  if (profile) return profile;
+
+  // Fallback для існуючої адмінської таблиці, щоб адмін не втратив доступ,
+  // якщо його ще не перенесли в rebus_profiles.
+  profile = await tryProfileByEmail(adminTable, email, 'admin');
+  if (profile) return profile;
+
+  profile = await tryProfileById(adminTable, userId, 'admin');
+  if (profile) return profile;
 
   return null;
 }
@@ -122,9 +174,14 @@ async function fetchProfile(email) {
 function isActiveProfile(profile) {
   if (!profile) return false;
   if (profile.deleted_at) return false;
-  const status = String(profile.status || '').toLowerCase();
-  if (['deleted', 'inactive', 'disabled', 'blocked'].includes(status)) return false;
+
+  const status = String(profile.status || '').trim().toLowerCase();
+  const inactiveStatuses = ['deleted', 'inactive', 'disabled', 'blocked', 'rejected', 'denied'];
+
+  if (inactiveStatuses.includes(status)) return false;
   if (profile.is_active === false) return false;
+
+  // Якщо статус порожній або approved/active/new — не блокуємо.
   return true;
 }
 
@@ -141,9 +198,12 @@ async function requireUser() {
   const session = await requireSessionOnly();
   if (!session) return null;
 
-  const profile = await fetchProfile(session.user.email);
-  if (!isActiveProfile(profile) || !isUserPortalAllowed(profile.role)) {
-    await supabaseClient.auth.signOut();
+  const profile = await fetchProfile(session.user);
+
+  if (!isActiveProfile(profile) || !isUserPortalAllowed(profile?.role)) {
+    // Не затираємо Google-сесію. Так легше повернутись після надання доступу
+    // і зручніше діагностувати, який email не знайдений у rebus_profiles.
+    sessionStorage.setItem('rebus_denied_email', session.user.email || '');
     location.href = 'access-denied.html';
     return null;
   }
@@ -172,9 +232,11 @@ function user2FaUrl() {
 
 async function startGoogleLogin() {
   const btn = $('loginBtn');
+
   try {
     if (btn) btn.disabled = true;
     setStatus('');
+
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -185,6 +247,7 @@ async function startGoogleLogin() {
         }
       }
     });
+
     if (error) throw error;
   } catch (error) {
     setStatus(error?.message || 'Не вдалося відкрити Google-вхід.', 'error');
@@ -198,13 +261,10 @@ async function routeIfAlreadyLoggedIn() {
 
   const aal = await getAal();
 
-  // Користувацький сайт НІКОЛИ не перекидає адміна автоматично в адмінку.
-  // Якщо адмін зайшов на rebus-secure.com — він проходить користувацький маршрут.
+  // Користувацький сайт ніколи не перекидає адміна автоматично в адмінку.
   location.href = aal === 'aal2' ? userPortalAfter2FaUrl() : 'verify-2fa.html';
 }
 
-// Додатковий страховочний редірект після OAuth: якщо Supabase повернув користувача
-// на index.html із готовою сесією, примусово ведемо його на власну сторінку 2FA порталу.
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_IN' && session?.user?.email && /index\.html?$|\/$/.test(location.pathname)) {
     const aal = await getAal();
@@ -225,6 +285,7 @@ window.rebusAuth = {
   requireUser,
   getAal,
   getAuthenticatorFactors,
+  normalizeEmail,
   normalizeRole,
   roleLabel,
   isAdminRole,
