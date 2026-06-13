@@ -4,7 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>REBUS Secure — 2FA</title>
-  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="icon" href="assets/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png" />
   <link rel="icon" type="image/png" href="assets/favicon-dark.png" media="(prefers-color-scheme: dark)" />
   <link rel="icon" type="image/png" href="assets/favicon-light.png" media="(prefers-color-scheme: light)" />
   <link rel="stylesheet" href="css/styles.css" />
@@ -19,7 +22,7 @@
         <img src="assets/favicon-dark.png" alt="REBUS" />
         <div class="brand-title">REBUS <span>Secure</span></div>
       </div>
-      <h1 class="title">Підтвердження входу</h1>
+      <h1 class="title">Двофакторна перевірка</h1>
       <p class="sub">Введіть 6-значний код із застосунку автентифікації, щоб завершити вхід до користувацького порталу.</p>
       <div class="stack">
         <input id="codeInput" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" />
@@ -35,8 +38,8 @@
 
     window.addEventListener('DOMContentLoaded', async () => {
       const A = window.rebusAuth;
-      const ctx = await A.requireUser();
-      if (!ctx) return;
+      const session = await A.requireSessionOnly();
+      if (!session) return;
 
       const aal = await A.getAal();
       if (aal === 'aal2') {

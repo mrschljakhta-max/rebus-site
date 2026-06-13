@@ -11,9 +11,23 @@ function setStatus(text, type = '') {
   el.className = `status ${type}`.trim();
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function getSession() {
   const { data } = await supabaseClient.auth.getSession();
   return data.session;
+}
+
+async function waitForSession(timeoutMs = 8000) {
+  const started = Date.now();
+  let session = await getSession();
+  while (!session && Date.now() - started < timeoutMs) {
+    await sleep(250);
+    session = await getSession();
+  }
+  return session;
 }
 
 function normalizeRole(role) {
@@ -43,8 +57,6 @@ function profileRole(profile, source = '') {
   const role = profile.role || profile.access_role || profile.user_role || profile.permission || profile.level;
   if (role) return normalizeRole(role);
 
-  // Якщо профіль знайдено в адмінській таблиці, але роль не вказана явно,
-  // трактуємо його як admin, щоб адмін мав доступ і до порталу користувача.
   if (source === 'admin') return 'admin';
   return 'user';
 }
@@ -82,12 +94,18 @@ function isActiveProfile(profile) {
   return true;
 }
 
-async function requireUser() {
-  const session = await getSession();
+async function requireSessionOnly() {
+  const session = await waitForSession();
   if (!session?.user?.email) {
     location.href = 'index.html';
     return null;
   }
+  return session;
+}
+
+async function requireUser() {
+  const session = await requireSessionOnly();
+  if (!session) return null;
 
   const profile = await fetchProfile(session.user.email);
   if (!isActiveProfile(profile) || !isUserPortalAllowed(profile.role)) {
@@ -114,15 +132,24 @@ function userPortalAfter2FaUrl() {
   return cfg.USER_AFTER_2FA_URL || cfg.AFTER_2FA_URL || 'cabinet.html';
 }
 
+function user2FaUrl() {
+  return cfg.USER_2FA_URL || `${window.location.origin}/verify-2fa.html`;
+}
+
 async function startGoogleLogin() {
   const btn = $('loginBtn');
   try {
     if (btn) btn.disabled = true;
     setStatus('');
-    const redirectTo = cfg.USER_2FA_URL || `${window.location.origin}/verify-2fa.html`;
     const { error } = await supabaseClient.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo }
+      options: {
+        redirectTo: user2FaUrl(),
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'select_account'
+        }
+      }
     });
     if (error) throw error;
   } catch (error) {
@@ -135,21 +162,29 @@ async function routeIfAlreadyLoggedIn() {
   const session = await getSession();
   if (!session?.user?.email) return;
 
-  const profile = await fetchProfile(session.user.email);
-  if (!isActiveProfile(profile) || !isUserPortalAllowed(profile.role)) return;
-
   const aal = await getAal();
 
-  // ВАЖЛИВО: користувацький сайт ніколи не перекидає адміна в адмінку автоматично.
-  // Якщо адмін зайшов на rebus-secure.com — він працює тут як користувач.
+  // Користувацький сайт НІКОЛИ не перекидає адміна автоматично в адмінку.
+  // Якщо адмін зайшов на rebus-secure.com — він проходить користувацький маршрут.
   location.href = aal === 'aal2' ? userPortalAfter2FaUrl() : 'verify-2fa.html';
 }
+
+// Додатковий страховочний редірект після OAuth: якщо Supabase повернув користувача
+// на index.html із готовою сесією, примусово ведемо його на власну сторінку 2FA порталу.
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session?.user?.email && /index\.html?$|\/$/.test(location.pathname)) {
+    const aal = await getAal();
+    location.href = aal === 'aal2' ? userPortalAfter2FaUrl() : 'verify-2fa.html';
+  }
+});
 
 window.rebusAuth = {
   supabase: supabaseClient,
   $,
   setStatus,
   getSession,
+  waitForSession,
+  requireSessionOnly,
   fetchProfile,
   isActiveProfile,
   requireUser,
@@ -161,5 +196,6 @@ window.rebusAuth = {
   isUserPortalAllowed,
   startGoogleLogin,
   routeIfAlreadyLoggedIn,
-  userPortalAfter2FaUrl
+  userPortalAfter2FaUrl,
+  user2FaUrl
 };
