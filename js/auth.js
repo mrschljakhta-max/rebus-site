@@ -15,12 +15,45 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function absorbOAuthSessionFromUrl() {
+  // Supabase OAuth іноді повертає access_token у hash (#access_token=...).
+  // На GitHub Pages/static hosting сесія не завжди встигає зберегтися до першої перевірки,
+  // через що verify-2fa.html бачить "немає сесії" і кидає назад на стартову.
+  const hash = window.location.hash || '';
+  if (!hash.includes('access_token=')) return null;
+
+  const params = new URLSearchParams(hash.replace(/^#/, ''));
+  const access_token = params.get('access_token');
+  const refresh_token = params.get('refresh_token');
+
+  if (!access_token || !refresh_token) return null;
+
+  const { data, error } = await supabaseClient.auth.setSession({
+    access_token,
+    refresh_token
+  });
+
+  if (error) throw error;
+
+  // Прибираємо токени з адресного рядка, але залишаємо користувача на цій же сторінці.
+  history.replaceState(null, document.title, window.location.pathname + window.location.search);
+  return data.session;
+}
+
+
 async function getSession() {
+  try {
+    const urlSession = await absorbOAuthSessionFromUrl();
+    if (urlSession) return urlSession;
+  } catch (error) {
+    setStatus(error?.message || 'Не вдалося зберегти Google-сесію.', 'error');
+  }
+
   const { data } = await supabaseClient.auth.getSession();
   return data.session;
 }
 
-async function waitForSession(timeoutMs = 8000) {
+async function waitForSession(timeoutMs = 10000) {
   const started = Date.now();
   let session = await getSession();
   while (!session && Date.now() - started < timeoutMs) {
@@ -184,6 +217,7 @@ window.rebusAuth = {
   setStatus,
   getSession,
   waitForSession,
+  absorbOAuthSessionFromUrl,
   requireSessionOnly,
   fetchProfile,
   isActiveProfile,
