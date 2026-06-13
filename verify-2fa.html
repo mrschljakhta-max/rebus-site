@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REBUS Secure — 2FA</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js" defer></script>
+</head>
+<body class="page-bg twofa-bg">
+  <main class="auth-wrap">
+    <section class="auth-card">
+      <div class="brand">
+        <img src="assets/favicon.png" alt="REBUS" />
+        <div class="brand-title">REBUS <span>Secure</span></div>
+      </div>
+      <h1 class="title">Підтвердження входу</h1>
+      <p class="sub">Введіть 6-значний код із застосунку автентифікації, щоб завершити вхід до користувацького порталу.</p>
+      <div class="stack">
+        <input id="codeInput" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" />
+        <button id="verifyBtn" class="btn" type="button">Підтвердити</button>
+        <button id="logoutBtn" class="btn secondary" type="button">Вийти</button>
+      </div>
+      <div id="status" class="status">Очікую авторизацію Google...</div>
+    </section>
+  </main>
+  <script>
+    let factorId = null;
+    let challengeId = null;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const A = window.rebusAuth;
+      const ctx = await A.requireUser();
+      if (!ctx) return;
+
+      const aal = await A.getAal();
+      if (aal === 'aal2') {
+        location.href = window.REBUS_CONFIG.AFTER_2FA_URL || 'cabinet.html';
+        return;
+      }
+
+      const factors = await A.getAuthenticatorFactors();
+      if (!factors.length) {
+        A.setStatus('Для цього акаунта ще не налаштовано 2FA. Зверніться до адміністратора REBUS.', 'warn');
+        return;
+      }
+
+      factorId = factors[0].id;
+      const { data, error } = await A.supabase.auth.mfa.challenge({ factorId });
+      if (error) {
+        A.setStatus(error.message || 'Не вдалося створити 2FA-запит.', 'error');
+        return;
+      }
+      challengeId = data.id;
+      A.setStatus('Очікую 6-значний код 2FA.');
+      A.$('codeInput')?.focus();
+
+      async function verify() {
+        const code = A.$('codeInput').value.replace(/\D/g, '').slice(0, 6);
+        A.$('codeInput').value = code;
+        if (code.length !== 6) {
+          A.setStatus('Введіть рівно 6 цифр.', 'error');
+          return;
+        }
+        A.setStatus('Перевіряю код...');
+        const { error } = await A.supabase.auth.mfa.verify({ factorId, challengeId, code });
+        if (error) {
+          A.setStatus('Код неправильний або застарів.', 'error');
+          return;
+        }
+        A.setStatus('Доступ підтверджено.', 'ok');
+        setTimeout(() => location.href = window.REBUS_CONFIG.AFTER_2FA_URL || 'cabinet.html', 350);
+      }
+
+      A.$('verifyBtn')?.addEventListener('click', verify);
+      A.$('codeInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') verify(); });
+      A.$('codeInput')?.addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); });
+      A.$('logoutBtn')?.addEventListener('click', async () => { await A.supabase.auth.signOut(); location.href = 'index.html'; });
+    });
+  </script>
+</body>
+</html>

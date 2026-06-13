@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REBUS Secure — Кабінет</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <div class="brand">
+        <img src="assets/favicon.png" alt="REBUS" />
+        <div class="brand-title">REBUS <span>Secure</span></div>
+      </div>
+      <nav class="nav">
+        <a class="active" href="cabinet.html">Кабінет</a>
+        <a href="#learning">Навчання</a>
+        <a href="#tools">Довідники</a>
+        <a href="#support">Підтримка</a>
+      </nav>
+      <div class="side-bottom">
+        <button id="logoutBtn" class="btn secondary" type="button">Вийти</button>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="top">
+        <div>
+          <h1>Особистий кабінет</h1>
+          <div class="muted">REBUS Secure User Portal</div>
+        </div>
+        <div class="profile-mini"><strong id="userName">—</strong><span id="userEmail">—</span></div>
+      </header>
+
+      <section class="grid">
+        <div class="panel pad">
+          <h3>Статус доступу</h3>
+          <span id="accessBadge" class="badge">● Активний</span>
+          <p class="muted">Доступ підтверджено через Google та 2FA.</p>
+        </div>
+        <div class="panel pad">
+          <h3>Роль</h3>
+          <div id="roleText" style="font-size:28px;font-weight:950">—</div>
+          <p class="muted">Роль визначає доступні модулі REBUS.</p>
+        </div>
+        <div class="panel pad">
+          <h3>Розширення</h3>
+          <span class="badge warn">● Синхронізується окремо</span>
+          <p class="muted">Пакування та розпакування файлів виконує тільки розширення.</p>
+        </div>
+
+        <div class="panel pad wide">
+          <h2>Дані профілю</h2>
+          <div class="kv">
+            <div class="kv-row"><span class="muted">Email</span><strong id="profileEmail">—</strong></div>
+            <div class="kv-row"><span class="muted">Маркер</span><strong id="profileMarker">—</strong></div>
+            <div class="kv-row"><span class="muted">Статус</span><strong id="profileStatus">—</strong></div>
+            <div class="kv-row"><span class="muted">Остання синхронізація</span><strong id="profileSync">—</strong></div>
+          </div>
+        </div>
+
+        <div id="learning" class="panel pad wide">
+          <h2>Навчальний центр</h2>
+          <p class="muted">Тут буде коротке навчання роботі з розширенням REBUS Secure.</p>
+          <div class="learn-list">
+            <div class="learn-item"><strong>1. Встановлення розширення</strong><span class="muted">Як додати REBUS Secure у Chrome та перевірити статус доступу.</span></div>
+            <div class="learn-item"><strong>2. Синхронізація доступу</strong><span class="muted">Як підтягнути роль, маркер та статус користувача.</span></div>
+            <div class="learn-item"><strong>3. Пакування файлів</strong><span class="muted">Файли обробляються локально в розширенні, не на сайті.</span></div>
+            <div class="learn-item"><strong>4. Розпакування файлів</strong><span class="muted">Доступно для ролей, яким адміністратор дозволив цю операцію.</span></div>
+          </div>
+        </div>
+
+        <div id="tools" class="panel pad">
+          <h3>Довідники</h3>
+          <p class="muted">Місце для майбутніх довідників та службових матеріалів.</p>
+        </div>
+        <div id="support" class="panel pad">
+          <h3>Підтримка</h3>
+          <p class="muted">Звернення до адміністратора REBUS Secure.</p>
+        </div>
+        <div class="panel pad">
+          <h3>Адмін-портал</h3>
+          <p class="muted">Доступний тільки адміністраторам.</p>
+          <a class="ghost-link" href="https://admin.rebus-secure.com">Перейти</a>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      const A = window.rebusAuth;
+      const ctx = await A.requireUser();
+      if (!ctx) return;
+      const aal = await A.getAal();
+      if (aal !== 'aal2') { location.href = 'verify-2fa.html'; return; }
+
+      const user = ctx.session.user;
+      const profile = ctx.profile || {};
+      const name = profile.full_name || profile.name || user.user_metadata?.full_name || user.email;
+      const role = profile.role || 'user';
+      const status = profile.status || (profile.is_active === false ? 'inactive' : 'active');
+
+      A.$('userName').textContent = name;
+      A.$('userEmail').textContent = user.email;
+      A.$('profileEmail').textContent = user.email;
+      A.$('profileMarker').textContent = profile.marker || profile.access_marker || '—';
+      A.$('profileStatus').textContent = status === 'active' ? 'Активний' : status;
+      A.$('profileSync').textContent = new Date().toLocaleString('uk-UA');
+      A.$('roleText').textContent = A.roleLabel(role);
+
+      A.$('logoutBtn')?.addEventListener('click', async () => { await A.supabase.auth.signOut(); location.href = 'index.html'; });
+    });
+  </script>
+</body>
+</html>
