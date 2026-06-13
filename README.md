@@ -59,3 +59,19 @@ superadmin
 Пошук email виконується через `ilike`, тому регістр літер у пошті не має значення.
 
 Якщо доступ не знайдено, сторінка `access-denied.html` покаже email, який потрібно додати/активувати через адмінку.
+
+
+## Chrome Web Store поля
+
+Для сторінки продукту можна вказати:
+
+```text
+URL-адреса головної сторінки:
+https://rebus-secure.com/
+
+URL-адреса сторінки служби підтримки:
+https://rebus-secure.com/support.html
+
+Політика конфіденційності:
+https://rebus-secure.com/privacy.html
+```
