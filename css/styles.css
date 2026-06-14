@@ -282,3 +282,27 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     grid-template-columns: 1fr;
   }
 }
+
+
+/* === Login word alignment to printed oval button, 2026-06-14 === */
+.login-entry{
+  left:81.8%;
+  top:72.5%;
+  transform:translate(-50%,-50%);
+}
+.login-word{
+  color:rgba(18,18,18,.86);
+  font-size:clamp(18px,1.55vw,28px);
+  font-weight:800;
+  letter-spacing:.08em;
+  text-shadow:0 1px 0 rgba(255,255,255,.28),0 8px 18px rgba(0,0,0,.18);
+}
+.login-word:hover{
+  color:#151515;
+  text-shadow:0 0 10px rgba(255,255,255,.25),0 0 16px rgba(185,13,37,.28);
+  transform:translateY(-1px);
+}
+@media(max-width:920px){
+  .login-entry{left:81.8%;top:72.5%}
+  .login-word{font-size:18px;letter-spacing:.06em}
+}
