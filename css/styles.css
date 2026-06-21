@@ -558,3 +558,22 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
 .login-video-page .login-word:hover{
   color:#ff1a1a !important;
 }
+
+
+/* PATCH: center login text */
+.login-word,
+.login-entry .login-word{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  height:100% !important;
+  text-align:center !important;
+  margin:0 !important;
+  padding:0 !important;
+  letter-spacing:0.08em !important;
+  color:#fff !important;
+}
+.login-word:hover{
+  color:#ff1a1a !important;
+}
