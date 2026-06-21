@@ -511,3 +511,28 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
 @media(max-width:920px){
   .setup-2fa-card{transform:none !important;}
 }
+
+
+/* === Login page video background, 2026-06-21 === */
+.login-video-page{
+  background-image:url('../assets/bg-login.png');
+}
+.login-bg-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:0;
+  pointer-events:none;
+}
+.login-video-page::before{
+  z-index:1;
+  background:linear-gradient(90deg,rgba(0,0,0,.10),rgba(0,0,0,.04) 45%,rgba(0,0,0,.22) 100%);
+}
+.login-video-page .login-entry{
+  z-index:2;
+}
+@media (prefers-reduced-motion: reduce){
+  .login-bg-video{display:none}
+}

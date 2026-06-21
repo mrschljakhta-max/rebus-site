@@ -10,12 +10,15 @@
   <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png" />
   <link rel="icon" type="image/png" href="assets/favicon-dark.png" media="(prefers-color-scheme: dark)" />
   <link rel="icon" type="image/png" href="assets/favicon-light.png" media="(prefers-color-scheme: light)" />
-  <link rel="stylesheet" href="css/styles.css?v=login-oval-final-20260614" />
+  <link rel="stylesheet" href="css/styles.css?v=login-video-20260621" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/auth.js" defer></script>
 </head>
-<body class="page-bg login-bg">
+<body class="page-bg login-bg login-video-page">
+  <video class="login-bg-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+    <source src="assets/video-enter-site.mp4" type="video/mp4" />
+  </video>
   <main class="login-entry" aria-label="REBUS Secure login">
     <button id="loginBtn" class="login-word" type="button" aria-label="Увійти через Google">ВХІД</button>
   </main>
