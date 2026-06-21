@@ -124,19 +124,33 @@
       if (!ctx) return;
 
       const aal = await A.getAal();
-      const factors = await A.getAuthenticatorFactors();
 
       if (aal === 'aal2') {
         location.href = A.userPortalAfter2FaUrl();
         return;
       }
 
-      if (factors.length) {
+      const { data: rawFactorsData } = await A.supabase.auth.mfa.listFactors();
+      const allTotpFactors = rawFactorsData?.totp || [];
+      const verifiedFactors = allTotpFactors.filter((f) => f.status === 'verified');
+      const unverifiedFactors = allTotpFactors.filter((f) => f.status !== 'verified');
+
+      if (verifiedFactors.length) {
         location.href = 'verify-2fa.html';
         return;
       }
 
-      A.setStatus('Створюємо 2FA-фактор...');
+      // Якщо користувач раніше відкривав цю сторінку, Supabase міг уже створити
+      // незавершений TOTP-фактор. Його потрібно прибрати, інакше новий QR не згенерується.
+      for (const factor of unverifiedFactors) {
+        try {
+          await A.supabase.auth.mfa.unenroll({ factorId: factor.id });
+        } catch (e) {
+          console.warn('[REBUS] pending 2FA factor cleanup failed:', e);
+        }
+      }
+
+      A.setStatus('Створюємо QR-код для 2FA...', 'warn');
 
       const friendlyName = `REBUS Secure — ${ctx.session.user.email || 'user'}`;
       const { data: enrollData, error: enrollError } = await A.supabase.auth.mfa.enroll({
@@ -145,7 +159,8 @@
       });
 
       if (enrollError) {
-        A.setStatus(enrollError.message || 'Не вдалося створити 2FA-фактор.', 'error');
+        console.error('[REBUS] 2FA enroll error:', enrollError);
+        A.setStatus('Не вдалося створити QR-код. Вийдіть із системи, увійдіть знову і повторіть спробу.', 'error');
         return;
       }
 

@@ -448,3 +448,66 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
 @media(max-width:560px){
   .qr-img,.qr-svg svg{width:190px;height:190px}
 }
+
+
+/* === REBUS setup 2FA compact QR fix === */
+.setup-2fa-card{
+  width:min(520px,92vw) !important;
+  max-height:none !important;
+  overflow:visible !important;
+  padding:28px !important;
+}
+.setup-2fa-card .brand{
+  margin-bottom:18px !important;
+}
+.setup-2fa-card .title{
+  font-size:28px !important;
+  margin-bottom:10px !important;
+}
+.setup-2fa-card .sub{
+  font-size:14px !important;
+  line-height:1.45 !important;
+  margin-bottom:12px !important;
+}
+.qr-box{
+  min-height:230px !important;
+  margin:12px 0 12px !important;
+  padding:16px !important;
+}
+.qr-img,
+.qr-svg svg{
+  width:210px !important;
+  height:210px !important;
+  padding:10px !important;
+  border-radius:16px !important;
+}
+.setup-steps{
+  font-size:12px !important;
+  gap:6px !important;
+  margin-bottom:12px !important;
+  padding:12px 14px !important;
+}
+.setup-secret-wrap{
+  margin-bottom:12px !important;
+  padding:11px 14px !important;
+}
+.setup-actions{
+  gap:10px !important;
+}
+.setup-2fa-card .code-input{
+  height:56px !important;
+  font-size:25px !important;
+}
+.setup-2fa-card .btn{
+  min-height:50px !important;
+}
+.setup-2fa-card .status{
+  margin-top:12px !important;
+  font-size:13px !important;
+}
+@media(max-height:760px){
+  .setup-2fa-card{transform:scale(.92);transform-origin:center right;}
+}
+@media(max-width:920px){
+  .setup-2fa-card{transform:none !important;}
+}
