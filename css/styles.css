@@ -560,20 +560,56 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
 }
 
 
-/* PATCH: center login text */
-.login-word,
-.login-entry .login-word{
+/* === REBUS LOGIN BUTTON PATCH v3 ===
+   Fixes the actual visible label position, not only the parent element.
+*/
+.login-video-page .login-entry{
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
+}
+
+.login-video-page .login-word{
+  position:absolute !important;
+  inset:0 !important;
   width:100% !important;
   height:100% !important;
-  text-align:center !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
   margin:0 !important;
   padding:0 !important;
-  letter-spacing:0.08em !important;
-  color:#fff !important;
+  border:0 !important;
+  background:transparent !important;
+  color:#ffffff !important;
+  text-align:center !important;
+  letter-spacing:0 !important;
+  line-height:1 !important;
+  transform:none !important;
 }
-.login-word:hover{
+
+.login-video-page .login-word-text{
+  display:block !important;
+  position:relative !important;
+  left:0 !important;
+  top:0 !important;
+  transform:none !important;
+  margin:0 !important;
+  padding:0 !important;
+  width:auto !important;
+  height:auto !important;
+  color:inherit !important;
+  font-weight:950 !important;
+  font-size:clamp(18px,2.05vw,34px) !important;
+  letter-spacing:.10em !important;
+  line-height:1 !important;
+  text-align:center !important;
+}
+
+.login-video-page .login-word:hover{
+  color:#ff1a1a !important;
+}
+
+.login-video-page .login-word:hover .login-word-text{
   color:#ff1a1a !important;
 }
