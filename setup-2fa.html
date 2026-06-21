@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REBUS Secure — Налаштування 2FA</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png" />
+  <link rel="icon" type="image/png" href="assets/favicon-dark.png" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" type="image/png" href="assets/favicon-light.png" media="(prefers-color-scheme: light)" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js" defer></script>
+</head>
+<body class="page-bg twofa-bg setup-2fa-bg">
+  <main class="twofa-wrap setup-2fa-wrap">
+    <section class="auth-card twofa-card setup-2fa-card">
+      <div class="brand compact">
+        <img src="assets/favicon-dark.png" alt="REBUS" />
+        <div class="brand-title">REBUS <span>Secure</span></div>
+      </div>
+
+      <h1 class="title">Налаштування 2FA</h1>
+      <p class="sub">Перший вхід потребує прив’язки застосунку автентифікації. Відскануйте QR-код у Google Authenticator, Microsoft Authenticator або аналогічному застосунку.</p>
+
+      <div id="setupQrBox" class="qr-box">
+        <div class="qr-placeholder">Генеруємо QR-код...</div>
+      </div>
+
+      <div class="setup-secret-wrap">
+        <div class="setup-label">Резервний секрет</div>
+        <code id="secretText" class="setup-secret">—</code>
+      </div>
+
+      <div class="stack setup-actions">
+        <input id="codeInput" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" />
+        <button id="verifyBtn" class="btn" type="button">Активувати 2FA</button>
+        <button id="logoutBtn" class="btn secondary" type="button">Вийти</button>
+      </div>
+
+      <div id="status" class="status">Очікую Google-сесію...</div>
+    </section>
+  </main>
+
+  <script>
+    let factorId = null;
+    let challengeId = null;
+
+    function renderQr(qrCode) {
+      const box = document.getElementById('setupQrBox');
+      if (!box) return;
+
+      if (!qrCode) {
+        box.innerHTML = '<div class="qr-placeholder">QR-код не отримано. Спробуйте оновити сторінку.</div>';
+        return;
+      }
+
+      if (String(qrCode).startsWith('data:image')) {
+        box.innerHTML = `<img class="qr-img" src="${qrCode}" alt="QR-код 2FA" />`;
+        return;
+      }
+
+      // Supabase зазвичай повертає SVG-рядок. Джерело — trusted API Supabase Auth.
+      box.innerHTML = `<div class="qr-svg">${qrCode}</div>`;
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const A = window.rebusAuth;
+      const ctx = await A.requireUser();
+      if (!ctx) return;
+
+      const aal = await A.getAal();
+      const factors = await A.getAuthenticatorFactors();
+
+      if (aal === 'aal2') {
+        location.href = A.userPortalAfter2FaUrl();
+        return;
+      }
+
+      if (factors.length) {
+        location.href = 'verify-2fa.html';
+        return;
+      }
+
+      A.setStatus('Створюємо 2FA-фактор...');
+
+      const friendlyName = `REBUS Secure — ${ctx.session.user.email || 'user'}`;
+      const { data: enrollData, error: enrollError } = await A.supabase.auth.mfa.enroll({
+        factorType: 'totp',
+        friendlyName
+      });
+
+      if (enrollError) {
+        A.setStatus(enrollError.message || 'Не вдалося створити 2FA-фактор.', 'error');
+        return;
+      }
+
+      factorId = enrollData.id;
+      renderQr(enrollData?.totp?.qr_code);
+
+      const secret = enrollData?.totp?.secret || '';
+      if (A.$('secretText')) A.$('secretText').textContent = secret || '—';
+
+      const { data: challengeData, error: challengeError } = await A.supabase.auth.mfa.challenge({ factorId });
+
+      if (challengeError) {
+        A.setStatus(challengeError.message || 'Не вдалося створити перевірку 2FA.', 'error');
+        return;
+      }
+
+      challengeId = challengeData.id;
+      A.setStatus('Відскануйте QR-код, введіть 6 цифр і натисніть «Активувати 2FA».', 'warn');
+      A.$('codeInput')?.focus();
+
+      async function verifySetup() {
+        const code = A.$('codeInput').value.replace(/\D/g, '').slice(0, 6);
+        A.$('codeInput').value = code;
+
+        if (code.length !== 6) {
+          A.setStatus('Введіть рівно 6 цифр.', 'error');
+          return;
+        }
+
+        A.setStatus('Перевіряю код і активую 2FA...');
+
+        const { error: verifyError } = await A.supabase.auth.mfa.verify({
+          factorId,
+          challengeId,
+          code
+        });
+
+        if (verifyError) {
+          A.setStatus('Код неправильний або застарів. Спробуйте ще раз.', 'error');
+          return;
+        }
+
+        A.setStatus('2FA активовано. Вхід підтверджено.', 'ok');
+        setTimeout(() => location.href = A.userPortalAfter2FaUrl(), 500);
+      }
+
+      A.$('verifyBtn')?.addEventListener('click', verifySetup);
+      A.$('codeInput')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') verifySetup(); });
+      A.$('codeInput')?.addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); });
+      A.$('logoutBtn')?.addEventListener('click', async () => { await A.supabase.auth.signOut(); location.href = 'index.html'; });
+    });
+  </script>
+</body>
+</html>

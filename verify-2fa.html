@@ -49,7 +49,8 @@
 
       const factors = await A.getAuthenticatorFactors();
       if (!factors.length) {
-        A.setStatus('Для цього акаунта ще не налаштовано 2FA. Зверніться до адміністратора REBUS.', 'warn');
+        A.setStatus('2FA ще не налаштовано. Переходимо до першого налаштування...', 'warn');
+        setTimeout(() => location.href = A.userSetup2FaUrl(), 550);
         return;
       }
 

@@ -330,3 +330,73 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   .login-entry{left:81.8% !important;top:74.4% !important;}
   .login-word{font-size:18px !important;letter-spacing:.06em !important;}
 }
+
+
+/* === REBUS first-time 2FA setup === */
+.setup-2fa-card{
+  width:min(560px,92vw);
+}
+.qr-box{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:226px;
+  margin:18px 0 16px;
+  padding:18px;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:22px;
+  background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 22px 70px rgba(0,0,0,.22);
+}
+.qr-placeholder{
+  color:rgba(255,255,255,.62);
+  font-weight:800;
+  text-align:center;
+}
+.qr-img,
+.qr-svg svg{
+  width:190px;
+  height:190px;
+  display:block;
+  border-radius:16px;
+  background:#fff;
+  padding:10px;
+}
+.qr-svg{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.setup-secret-wrap{
+  margin:0 0 18px;
+  padding:14px 16px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.24);
+}
+.setup-label{
+  margin-bottom:8px;
+  color:rgba(255,255,255,.62);
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.setup-secret{
+  display:block;
+  overflow-wrap:anywhere;
+  color:#fff;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:13px;
+  line-height:1.45;
+}
+.setup-actions{
+  margin-top:8px;
+}
+.setup-2fa-card .sub{
+  margin-bottom:10px;
+}
+@media(max-width:920px){
+  .setup-2fa-card{width:min(520px,94vw)}
+  .qr-img,.qr-svg svg{width:170px;height:170px}
+}

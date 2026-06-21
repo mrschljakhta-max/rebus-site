@@ -222,12 +222,21 @@ async function getAuthenticatorFactors() {
   return (data?.totp || []).filter((f) => f.status === 'verified');
 }
 
+async function hasConfigured2FA() {
+  const factors = await getAuthenticatorFactors();
+  return factors.length > 0;
+}
+
 function userPortalAfter2FaUrl() {
   return cfg.USER_AFTER_2FA_URL || cfg.AFTER_2FA_URL || 'cabinet.html';
 }
 
 function user2FaUrl() {
   return cfg.USER_2FA_URL || `${window.location.origin}/verify-2fa.html`;
+}
+
+function userSetup2FaUrl() {
+  return cfg.USER_SETUP_2FA_URL || 'setup-2fa.html';
 }
 
 async function startGoogleLogin() {
@@ -260,14 +269,27 @@ async function routeIfAlreadyLoggedIn() {
   if (!session?.user?.email) return;
 
   const aal = await getAal();
+  const has2FA = await hasConfigured2FA();
 
   // Користувацький сайт ніколи не перекидає адміна автоматично в адмінку.
+  if (!has2FA) {
+    location.href = userSetup2FaUrl();
+    return;
+  }
+
   location.href = aal === 'aal2' ? userPortalAfter2FaUrl() : 'verify-2fa.html';
 }
 
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
   if (event === 'SIGNED_IN' && session?.user?.email && /index\.html?$|\/$/.test(location.pathname)) {
     const aal = await getAal();
+    const has2FA = await hasConfigured2FA();
+
+    if (!has2FA) {
+      location.href = userSetup2FaUrl();
+      return;
+    }
+
     location.href = aal === 'aal2' ? userPortalAfter2FaUrl() : 'verify-2fa.html';
   }
 });
@@ -285,6 +307,7 @@ window.rebusAuth = {
   requireUser,
   getAal,
   getAuthenticatorFactors,
+  hasConfigured2FA,
   normalizeEmail,
   normalizeRole,
   roleLabel,
@@ -293,5 +316,6 @@ window.rebusAuth = {
   startGoogleLogin,
   routeIfAlreadyLoggedIn,
   userPortalAfter2FaUrl,
-  user2FaUrl
+  user2FaUrl,
+  userSetup2FaUrl
 };

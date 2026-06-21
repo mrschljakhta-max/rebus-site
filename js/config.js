@@ -5,6 +5,7 @@ window.REBUS_CONFIG = {
   PROFILE_TABLE: 'rebus_profiles',
   ADMIN_TABLE: 'rebus_admin_access',
   USER_2FA_URL: 'https://rebus-secure.com/verify-2fa.html',
+  USER_SETUP_2FA_URL: 'setup-2fa.html',
   AFTER_2FA_URL: 'cabinet.html',
   USER_AFTER_2FA_URL: 'cabinet.html',
   CURRENT_APP: 'user-portal'
