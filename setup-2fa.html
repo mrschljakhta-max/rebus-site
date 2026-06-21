@@ -26,14 +26,20 @@
       <h1 class="title">Налаштування 2FA</h1>
       <p class="sub">Перший вхід потребує прив’язки застосунку автентифікації. Відскануйте QR-код у Google Authenticator, Microsoft Authenticator або аналогічному застосунку.</p>
 
-      <div id="setupQrBox" class="qr-box">
+      <div id="setupQrBox" class="qr-box qr-loading">
         <div class="qr-placeholder">Генеруємо QR-код...</div>
       </div>
 
-      <div class="setup-secret-wrap">
-        <div class="setup-label">Резервний секрет</div>
-        <code id="secretText" class="setup-secret">—</code>
+      <div class="setup-steps">
+        <div><b>1.</b> Відкрийте Google Authenticator або Microsoft Authenticator.</div>
+        <div><b>2.</b> Натисніть «+» і оберіть сканування QR-коду.</div>
+        <div><b>3.</b> Введіть 6-значний код нижче.</div>
       </div>
+
+      <details class="setup-secret-wrap">
+        <summary>Показати резервний секрет</summary>
+        <code id="secretText" class="setup-secret">—</code>
+      </details>
 
       <div class="stack setup-actions">
         <input id="codeInput" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" />
@@ -53,18 +59,63 @@
       const box = document.getElementById('setupQrBox');
       if (!box) return;
 
+      box.classList.remove('qr-loading');
+      box.innerHTML = '';
+
       if (!qrCode) {
         box.innerHTML = '<div class="qr-placeholder">QR-код не отримано. Спробуйте оновити сторінку.</div>';
         return;
       }
 
-      if (String(qrCode).startsWith('data:image')) {
-        box.innerHTML = `<img class="qr-img" src="${qrCode}" alt="QR-код 2FA" />`;
+      const value = String(qrCode).trim();
+
+      // Важливо: не вставляємо data:image через innerHTML.
+      // SVG/data-url може містити лапки, які ламають HTML-атрибут src.
+      if (value.startsWith('data:image')) {
+        const img = document.createElement('img');
+        img.className = 'qr-img';
+        img.alt = 'QR-код 2FA';
+        img.src = value;
+        box.appendChild(img);
         return;
       }
 
-      // Supabase зазвичай повертає SVG-рядок. Джерело — trusted API Supabase Auth.
-      box.innerHTML = `<div class="qr-svg">${qrCode}</div>`;
+      // Якщо Supabase повернув raw SVG — вставляємо тільки SVG, без стороннього тексту.
+      if (value.includes('<svg')) {
+        const svgStart = value.indexOf('<svg');
+        const svgEnd = value.lastIndexOf('</svg>');
+        const svgOnly = svgEnd >= 0 ? value.slice(svgStart, svgEnd + 6) : value.slice(svgStart);
+        const wrap = document.createElement('div');
+        wrap.className = 'qr-svg';
+        wrap.innerHTML = svgOnly;
+        box.appendChild(wrap);
+        return;
+      }
+
+      box.innerHTML = '<div class="qr-placeholder">Невідомий формат QR-коду. Оновіть сторінку.</div>';
+    }
+
+    function showSuccess() {
+      const card = document.querySelector('.setup-2fa-card');
+      if (!card) {
+        location.href = window.rebusAuth.userPortalAfter2FaUrl();
+        return;
+      }
+
+      card.innerHTML = `
+        <div class="brand compact">
+          <img src="assets/favicon-dark.png" alt="REBUS" />
+          <div class="brand-title">REBUS <span>Secure</span></div>
+        </div>
+        <div class="setup-success-icon">✓</div>
+        <h1 class="title">2FA активовано</h1>
+        <p class="sub">Двофакторну автентифікацію успішно налаштовано. Тепер ваш акаунт захищено.</p>
+        <button id="continueBtn" class="btn" type="button">Перейти до кабінету</button>
+      `;
+
+      document.getElementById('continueBtn')?.addEventListener('click', () => {
+        location.href = window.rebusAuth.userPortalAfter2FaUrl();
+      });
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -137,8 +188,7 @@
           return;
         }
 
-        A.setStatus('2FA активовано. Вхід підтверджено.', 'ok');
-        setTimeout(() => location.href = A.userPortalAfter2FaUrl(), 500);
+        showSuccess();
       }
 
       A.$('verifyBtn')?.addEventListener('click', verifySetup);

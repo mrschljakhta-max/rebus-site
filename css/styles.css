@@ -334,15 +334,17 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
 
 /* === REBUS first-time 2FA setup === */
 .setup-2fa-card{
-  width:min(560px,92vw);
+  width:min(580px,92vw);
+  max-height:calc(100vh - 56px);
+  overflow:auto;
 }
 .qr-box{
   display:flex;
   align-items:center;
   justify-content:center;
-  min-height:226px;
+  min-height:286px;
   margin:18px 0 16px;
-  padding:18px;
+  padding:22px;
   border:1px solid rgba(255,255,255,.13);
   border-radius:22px;
   background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
@@ -355,35 +357,64 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
 }
 .qr-img,
 .qr-svg svg{
-  width:190px;
-  height:190px;
+  width:240px;
+  height:240px;
   display:block;
-  border-radius:16px;
+  border-radius:18px;
   background:#fff;
-  padding:10px;
+  padding:12px;
+  box-shadow:0 18px 44px rgba(0,0,0,.35);
 }
 .qr-svg{
   display:flex;
   align-items:center;
   justify-content:center;
 }
+.setup-steps{
+  display:grid;
+  gap:8px;
+  margin:0 0 16px;
+  padding:14px 16px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.22);
+  color:rgba(255,255,255,.78);
+  font-size:13px;
+  line-height:1.35;
+}
+.setup-steps b{
+  color:#ff4c71;
+}
 .setup-secret-wrap{
   margin:0 0 18px;
-  padding:14px 16px;
+  padding:13px 16px;
   border-radius:16px;
   border:1px solid rgba(255,255,255,.10);
   background:rgba(0,0,0,.24);
 }
-.setup-label{
-  margin-bottom:8px;
-  color:rgba(255,255,255,.62);
+.setup-secret-wrap summary{
+  cursor:pointer;
+  color:rgba(255,255,255,.68);
   font-size:13px;
   font-weight:900;
   letter-spacing:.04em;
   text-transform:uppercase;
+  list-style:none;
+}
+.setup-secret-wrap summary::-webkit-details-marker{
+  display:none;
+}
+.setup-secret-wrap summary::after{
+  content:'+';
+  float:right;
+  color:#ff4c71;
+}
+.setup-secret-wrap[open] summary::after{
+  content:'–';
 }
 .setup-secret{
   display:block;
+  margin-top:12px;
   overflow-wrap:anywhere;
   color:#fff;
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
@@ -396,7 +427,24 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
 .setup-2fa-card .sub{
   margin-bottom:10px;
 }
+.setup-success-icon{
+  width:92px;
+  height:92px;
+  display:grid;
+  place-items:center;
+  margin:28px auto 20px;
+  border-radius:999px;
+  background:linear-gradient(135deg,#19c37d,#0a7d51);
+  color:#fff;
+  font-size:52px;
+  font-weight:1000;
+  box-shadow:0 18px 50px rgba(25,195,125,.28);
+}
 @media(max-width:920px){
   .setup-2fa-card{width:min(520px,94vw)}
-  .qr-img,.qr-svg svg{width:170px;height:170px}
+  .qr-box{min-height:246px;padding:18px}
+  .qr-img,.qr-svg svg{width:210px;height:210px}
+}
+@media(max-width:560px){
+  .qr-img,.qr-svg svg{width:190px;height:190px}
 }
