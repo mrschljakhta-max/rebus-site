@@ -1,321 +1,129 @@
-const cfg = window.REBUS_CONFIG || {};
-const supabaseKey = cfg.SUPABASE_PUBLISHABLE_KEY || cfg.SUPABASE_ANON_KEY;
-const supabaseClient = window.supabase.createClient(cfg.SUPABASE_URL, supabaseKey);
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REBUS Secure — Кабінет</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <div class="brand">
+        <img src="assets/favicon.png" alt="REBUS" />
+        <div class="brand-title">REBUS <span>Secure</span></div>
+      </div>
+      <nav class="nav">
+        <a class="active" href="cabinet.html">Кабінет</a>
+        <a href="#learning">Навчання</a>
+        <a href="#tools">Довідники</a>
+        <a href="#support">Підтримка</a>
+      </nav>
+      <div class="side-bottom">
+        <button id="logoutBtn" class="btn secondary" type="button">Вийти</button>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="top">
+        <div>
+          <h1>Особистий кабінет</h1>
+          <div class="muted">REBUS Secure User Portal</div>
+        </div>
+        <div class="profile-mini"><strong id="userName">—</strong><span id="userEmail">—</span></div>
+      </header>
 
-const $ = (id) => document.getElementById(id);
-const statusEl = () => $('status') || $('loginStatus');
+      <section class="grid">
+        <div class="panel pad">
+          <h3>Статус доступу</h3>
+          <span id="accessBadge" class="badge">● Активний</span>
+          <p class="muted">Доступ підтверджено через Google та 2FA.</p>
+        </div>
+        <div class="panel pad">
+          <h3>Роль</h3>
+          <div id="roleText" style="font-size:28px;font-weight:950">—</div>
+          <p class="muted">Роль визначає доступні модулі REBUS.</p>
+        </div>
+        <div class="panel pad">
+          <h3>Розширення</h3>
+          <span class="badge warn">● Синхронізується окремо</span>
+          <p class="muted">Пакування та розпакування файлів виконує тільки розширення.</p>
+        </div>
 
-function setStatus(text, type = '') {
-  const el = statusEl();
-  if (!el) return;
-  el.textContent = text || '';
-  el.className = `status ${type}`.trim();
-}
+        <div class="panel pad wide">
+          <h2>Дані профілю</h2>
+          <div class="kv">
+            <div class="kv-row"><span class="muted">Email</span><strong id="profileEmail">—</strong></div>
+            <div class="kv-row"><span class="muted">Маркер</span><strong id="profileMarker">—</strong></div>
+            <div class="kv-row"><span class="muted">Статус</span><strong id="profileStatus">—</strong></div>
+            <div class="kv-row"><span class="muted">Остання синхронізація</span><strong id="profileSync">—</strong></div>
+          </div>
+        </div>
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+        <div id="learning" class="panel pad wide">
+          <h2>Навчальний центр</h2>
+          <p class="muted">Тут буде коротке навчання роботі з розширенням REBUS Secure.</p>
+          <div class="learn-list">
+            <div class="learn-item"><strong>1. Встановлення розширення</strong><span class="muted">Як додати REBUS Secure у Chrome та перевірити статус доступу.</span></div>
+            <div class="learn-item"><strong>2. Синхронізація доступу</strong><span class="muted">Як підтягнути роль, маркер та статус користувача.</span></div>
+            <div class="learn-item"><strong>3. Пакування файлів</strong><span class="muted">Файли обробляються локально в розширенні, не на сайті.</span></div>
+            <div class="learn-item"><strong>4. Розпакування файлів</strong><span class="muted">Доступно для ролей, яким адміністратор дозволив цю операцію.</span></div>
+          </div>
+        </div>
 
-function normalizeEmail(email) {
-  return String(email || '').trim().toLowerCase();
-}
+        <div id="tools" class="panel pad">
+          <h3>Довідники</h3>
+          <p class="muted">Місце для майбутніх довідників та службових матеріалів.</p>
+        </div>
+        <div id="support" class="panel pad">
+          <h3>Підтримка</h3>
+          <p class="muted">Звернення до адміністратора REBUS Secure.</p>
+        </div>
+        <div class="panel pad">
+          <h3>Адмін-портал</h3>
+          <p class="muted">Доступний тільки адміністраторам.</p>
+          <a id="adminLink" class="ghost-link" href="https://admin.rebus-secure.com" hidden>Перейти</a><span id="adminNotice" class="muted">Доступно лише адміністраторам.</span>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      const A = window.rebusAuth;
+      const ctx = await A.requireUser();
+      if (!ctx) return;
+      const aal = await A.getAal();
+      if (aal !== 'aal2') { location.href = 'verify-2fa.html'; return; }
 
-async function absorbOAuthSessionFromUrl() {
-  const hash = window.location.hash || '';
-  if (!hash.includes('access_token=')) return null;
+      const user = ctx.session.user;
+      const profile = ctx.profile || {};
+      const name = profile.full_name || profile.name || user.user_metadata?.full_name || user.email;
+      const role = A.normalizeRole(profile.role || 'user');
+      const status = profile.status || (profile.is_active === false ? 'inactive' : 'active');
 
-  const params = new URLSearchParams(hash.replace(/^#/, ''));
-  const access_token = params.get('access_token');
-  const refresh_token = params.get('refresh_token');
+      A.$('userName').textContent = name;
+      A.$('userEmail').textContent = user.email;
+      A.$('profileEmail').textContent = user.email;
+      A.$('profileMarker').textContent = profile.marker || profile.access_marker || '—';
+      A.$('profileStatus').textContent = status === 'active' ? 'Активний' : status;
+      A.$('profileSync').textContent = new Date().toLocaleString('uk-UA');
+      A.$('roleText').textContent = A.roleLabel(role);
 
-  if (!access_token || !refresh_token) return null;
-
-  const { data, error } = await supabaseClient.auth.setSession({
-    access_token,
-    refresh_token
-  });
-
-  if (error) throw error;
-
-  history.replaceState(null, document.title, window.location.pathname + window.location.search);
-  return data.session;
-}
-
-async function getSession() {
-  try {
-    const urlSession = await absorbOAuthSessionFromUrl();
-    if (urlSession) return urlSession;
-  } catch (error) {
-    setStatus(error?.message || 'Не вдалося зберегти Google-сесію.', 'error');
-  }
-
-  const { data } = await supabaseClient.auth.getSession();
-  return data.session;
-}
-
-async function waitForSession(timeoutMs = 10000) {
-  const started = Date.now();
-  let session = await getSession();
-  while (!session && Date.now() - started < timeoutMs) {
-    await sleep(250);
-    session = await getSession();
-  }
-  return session;
-}
-
-function normalizeRole(role) {
-  return String(role || 'user').trim().toLowerCase();
-}
-
-function roleLabel(role) {
-  const map = {
-    superadmin: 'Суперадміністратор',
-    admin: 'Адміністратор',
-    operator: 'Оператор',
-    user: 'Користувач'
-  };
-  return map[normalizeRole(role)] || role || 'Користувач';
-}
-
-function isAdminRole(role) {
-  return ['admin', 'superadmin', 'super_admin'].includes(normalizeRole(role));
-}
-
-function isUserPortalAllowed(role) {
-  return ['user', 'operator', 'admin', 'superadmin', 'super_admin'].includes(normalizeRole(role));
-}
-
-function profileRole(profile, source = '') {
-  if (!profile) return 'user';
-
-  const role =
-    profile.role ||
-    profile.access_role ||
-    profile.user_role ||
-    profile.permission ||
-    profile.level ||
-    profile.status_role;
-
-  if (role) return normalizeRole(role);
-  if (source === 'admin') return 'admin';
-  return 'user';
-}
-
-function prepareProfile(row, source) {
-  if (!row) return null;
-  return { ...row, _source: source, role: profileRole(row, source) };
-}
-
-async function tryProfileByEmail(tableName, email, source) {
-  const cleanEmail = normalizeEmail(email);
-  if (!cleanEmail) return null;
-
-  // 1) Основний сценарій: адмінка створює запис у rebus_profiles.email.
-  // ilike прибирає проблему регістру літер у Google email.
-  const { data, error } = await supabaseClient
-    .from(tableName)
-    .select('*')
-    .ilike('email', cleanEmail)
-    .limit(1)
-    .maybeSingle();
-
-  if (error) {
-    console.warn(`[REBUS] ${tableName} email lookup error:`, error.message);
-    return null;
-  }
-
-  return prepareProfile(data, source);
-}
-
-async function tryProfileById(tableName, userId, source) {
-  if (!userId) return null;
-
-  // Додаткова страховка: якщо в майбутньому id профілю дорівнюватиме auth.users.id.
-  const { data, error } = await supabaseClient
-    .from(tableName)
-    .select('*')
-    .eq('id', userId)
-    .limit(1)
-    .maybeSingle();
-
-  if (error) {
-    console.warn(`[REBUS] ${tableName} id lookup skipped:`, error.message);
-    return null;
-  }
-
-  return prepareProfile(data, source);
-}
-
-async function fetchProfile(userOrEmail) {
-  const email = typeof userOrEmail === 'string' ? userOrEmail : userOrEmail?.email;
-  const userId = typeof userOrEmail === 'string' ? null : userOrEmail?.id;
-
-  const profileTable = cfg.PROFILE_TABLE || 'rebus_profiles';
-  const adminTable = cfg.ADMIN_TABLE || 'rebus_admin_access';
-
-  // Головне джерело прав для користувацького порталу.
-  let profile = await tryProfileByEmail(profileTable, email, 'profile');
-  if (profile) return profile;
-
-  profile = await tryProfileById(profileTable, userId, 'profile');
-  if (profile) return profile;
-
-  // Fallback для існуючої адмінської таблиці, щоб адмін не втратив доступ,
-  // якщо його ще не перенесли в rebus_profiles.
-  profile = await tryProfileByEmail(adminTable, email, 'admin');
-  if (profile) return profile;
-
-  profile = await tryProfileById(adminTable, userId, 'admin');
-  if (profile) return profile;
-
-  return null;
-}
-
-function isActiveProfile(profile) {
-  if (!profile) return false;
-  if (profile.deleted_at) return false;
-
-  const status = String(profile.status || '').trim().toLowerCase();
-  const inactiveStatuses = ['deleted', 'inactive', 'disabled', 'blocked', 'rejected', 'denied'];
-
-  if (inactiveStatuses.includes(status)) return false;
-  if (profile.is_active === false) return false;
-
-  // Якщо статус порожній або approved/active/new — не блокуємо.
-  return true;
-}
-
-async function requireSessionOnly() {
-  const session = await waitForSession();
-  if (!session?.user?.email) {
-    location.href = 'index.html';
-    return null;
-  }
-  return session;
-}
-
-async function requireUser() {
-  const session = await requireSessionOnly();
-  if (!session) return null;
-
-  const profile = await fetchProfile(session.user);
-
-  if (!isActiveProfile(profile) || !isUserPortalAllowed(profile?.role)) {
-    // Не затираємо Google-сесію. Так легше повернутись після надання доступу
-    // і зручніше діагностувати, який email не знайдений у rebus_profiles.
-    sessionStorage.setItem('rebus_denied_email', session.user.email || '');
-    location.href = 'access-denied.html';
-    return null;
-  }
-
-  return { session, profile };
-}
-
-async function getAal() {
-  const { data } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
-  return data?.currentLevel || 'aal1';
-}
-
-async function getAuthenticatorFactors() {
-  const { data, error } = await supabaseClient.auth.mfa.listFactors();
-  if (error) return [];
-  return (data?.totp || []).filter((f) => f.status === 'verified');
-}
-
-async function hasConfigured2FA() {
-  const factors = await getAuthenticatorFactors();
-  return factors.length > 0;
-}
-
-function userPortalAfter2FaUrl() {
-  return cfg.USER_AFTER_2FA_URL || cfg.AFTER_2FA_URL || 'cabinet.html';
-}
-
-function user2FaUrl() {
-  return cfg.USER_2FA_URL || `${window.location.origin}/verify-2fa.html`;
-}
-
-function userSetup2FaUrl() {
-  return cfg.USER_SETUP_2FA_URL || 'setup-2fa.html';
-}
-
-async function startGoogleLogin() {
-  const btn = $('loginBtn');
-
-  try {
-    if (btn) btn.disabled = true;
-    setStatus('');
-
-    const { error } = await supabaseClient.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: user2FaUrl(),
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'select_account'
-        }
+      const adminLink = A.$('adminLink');
+      const adminNotice = A.$('adminNotice');
+      if (A.isAdminRole(role)) {
+        if (adminLink) adminLink.hidden = false;
+        if (adminNotice) adminNotice.textContent = 'Адмін-доступ підтверджено. Можна перейти до адмін-порталу.';
       }
+
+      A.$('logoutBtn')?.addEventListener('click', async () => { await A.supabase.auth.signOut(); location.href = 'index.html'; });
     });
-
-    if (error) throw error;
-  } catch (error) {
-    setStatus(error?.message || 'Не вдалося відкрити Google-вхід.', 'error');
-    if (btn) btn.disabled = false;
-  }
-}
-
-async function routeIfAlreadyLoggedIn() {
-  const session = await getSession();
-  if (!session?.user?.email) return;
-
-  const aal = await getAal();
-  const has2FA = await hasConfigured2FA();
-
-  // Користувацький сайт ніколи не перекидає адміна автоматично в адмінку.
-  if (!has2FA) {
-    location.href = userSetup2FaUrl();
-    return;
-  }
-
-  location.href = aal === 'aal2' ? userPortalAfter2FaUrl() : 'verify-2fa.html';
-}
-
-supabaseClient.auth.onAuthStateChange(async (event, session) => {
-  if (event === 'SIGNED_IN' && session?.user?.email && /index\.html?$|\/$/.test(location.pathname)) {
-    const aal = await getAal();
-    const has2FA = await hasConfigured2FA();
-
-    if (!has2FA) {
-      location.href = userSetup2FaUrl();
-      return;
-    }
-
-    location.href = aal === 'aal2' ? userPortalAfter2FaUrl() : 'verify-2fa.html';
-  }
-});
-
-window.rebusAuth = {
-  supabase: supabaseClient,
-  $,
-  setStatus,
-  getSession,
-  waitForSession,
-  absorbOAuthSessionFromUrl,
-  requireSessionOnly,
-  fetchProfile,
-  isActiveProfile,
-  requireUser,
-  getAal,
-  getAuthenticatorFactors,
-  hasConfigured2FA,
-  normalizeEmail,
-  normalizeRole,
-  roleLabel,
-  isAdminRole,
-  isUserPortalAllowed,
-  startGoogleLogin,
-  routeIfAlreadyLoggedIn,
-  userPortalAfter2FaUrl,
-  user2FaUrl,
-  userSetup2FaUrl
-};
+  </script>
+</body>
+</html>

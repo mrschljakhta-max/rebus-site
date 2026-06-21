@@ -3,30 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>REBUS Secure — Доступ не надано</title>
+  <title>REBUS Secure — Вхід</title>
   <link rel="icon" href="assets/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" type="image/png" href="assets/favicon-dark.png" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" type="image/png" href="assets/favicon-light.png" media="(prefers-color-scheme: light)" />
+  <link rel="stylesheet" href="css/styles.css?v=login-video-20260621" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js" defer></script>
 </head>
-<body class="page-bg twofa-bg">
-  <main class="auth-wrap">
-    <section class="auth-card">
-      <div class="brand">
-        <img src="assets/favicon.png" alt="REBUS" />
-        <div class="brand-title">REBUS <span>Secure</span></div>
-      </div>
-      <h1 class="title">Доступ не надано</h1>
-      <p class="sub">Цей Google-акаунт ще не доданий до REBUS Secure або має неактивний статус.</p>
-      <p id="deniedEmail" class="muted small-note"></p>
-      <a class="ghost-link" href="index.html">Повернутися</a>
-    </section>
+<body class="page-bg login-bg login-video-page">
+  <video class="login-bg-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+    <source src="assets/video-enter-site.mp4" type="video/mp4" />
+  </video>
+  <main class="login-entry" aria-label="REBUS Secure login">
+    <button id="loginBtn" class="login-word" type="button" aria-label="Увійти через Google">ВХІД</button>
   </main>
-<script>
-    const deniedEmail = sessionStorage.getItem('rebus_denied_email');
-    const el = document.getElementById('deniedEmail');
-    if (deniedEmail && el) el.textContent = `Email: ${deniedEmail}`;
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      const { $, startGoogleLogin, routeIfAlreadyLoggedIn } = window.rebusAuth;
+      $('loginBtn')?.addEventListener('click', startGoogleLogin);
+      await routeIfAlreadyLoggedIn();
+    });
   </script>
 </body>
 </html>
