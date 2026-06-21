@@ -46,25 +46,28 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   user-select:none;
 }
 .login-word{
-  display:inline-block;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   margin:0;
   padding:0;
   border:0;
   background:transparent;
-  color:rgba(102,8,20,.74);
+  color:#ffffff;
   font-size:clamp(18px,2.05vw,34px);
   font-weight:950;
-  letter-spacing:.55em;
+  letter-spacing:.12em;
   line-height:1;
+  text-align:center;
   text-decoration:none;
   text-transform:uppercase;
   cursor:pointer;
-  transition:.18s ease;
-  text-shadow:0 10px 28px rgba(0,0,0,.28);
+  transition:.22s ease;
+  text-shadow:0 10px 28px rgba(0,0,0,.30);
 }
 .login-word:hover{
-  color:#b81834;
-  text-shadow:0 0 14px rgba(184,24,52,.45),0 16px 34px rgba(0,0,0,.34);
+  color:#ff1a1a;
+  text-shadow:0 0 14px rgba(255,26,26,.70),0 16px 34px rgba(0,0,0,.34);
   transform:translateY(-1px);
 }
 .login-word:disabled{opacity:.62;cursor:wait}
@@ -535,4 +538,23 @@ body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
 }
 @media (prefers-reduced-motion: reduce){
   .login-bg-video{display:none}
+}
+
+
+/* === Final login button correction === */
+.login-video-page .login-entry{
+  left:67.6%;
+  top:48.2%;
+  transform:translate(-50%,-50%);
+}
+.login-video-page .login-word{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  color:#ffffff !important;
+  letter-spacing:.12em !important;
+  text-align:center !important;
+}
+.login-video-page .login-word:hover{
+  color:#ff1a1a !important;
 }
