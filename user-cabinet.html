@@ -3,62 +3,186 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>REBUS Secure — Кабінет</title>
+  <title>REBUS Secure — Особистий кабінет</title>
   <link rel="icon" href="assets/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png" />
-  <link rel="stylesheet" href="css/styles.css?v=rebus-pages-v1" />
+  <link rel="stylesheet" href="css/styles.css?v=user-cabinet-v1" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/auth.js" defer></script>
 </head>
+<body class="rebus-profile-page">
+  <nav class="rebus-topnav">
+    <a class="rebus-nav-logo" href="cabinet.html" aria-label="Повернутися на сторінку меню">
+      <img src="assets/favicon.png" alt="REBUS">
+    </a>
 
-<body class="rebus-subpage">
-  <main class="rebus-subpage-shell">
-    <header class="rebus-subpage-top">
-      <a class="rebus-back-link" href="cabinet.html">← На головну</a>
-      <button id="logoutBtn" class="cabinet-clean-logout" type="button">Вийти</button>
-    </header>
+    <div class="rebus-nav-links">
+      <a class="active" href="user-cabinet.html">Особистий кабінет</a>
+      <a href="training.html">Навчання</a>
+      <a href="contacts.html">Підтримка</a>
+      <button id="logoutBtn" type="button">Вихід</button>
+    </div>
+  </nav>
 
-    <section class="rebus-subpage-hero">
-      <div class="rebus-subpage-kicker">Особистий простір</div>
-      <h1>Кабінет</h1>
-      <p>Це окрема сторінка особистого кабінету користувача REBUS Secure.</p>
+  <main class="rebus-profile-main">
+    <section class="profile-hero">
+      <div class="profile-hero-image" aria-hidden="true">
+        <img src="assets/user-cabinet-about.png" alt="">
+      </div>
+
+      <div class="profile-panel">
+        <h1>Дані профілю</h1>
+
+        <div class="profile-lines">
+          <div class="profile-line">
+            <span>Email</span>
+            <strong id="profileEmail">—</strong>
+          </div>
+          <div class="profile-line">
+            <span>Маркер</span>
+            <strong id="profileMarker">—</strong>
+          </div>
+          <div class="profile-line">
+            <span>Статус</span>
+            <strong id="profileStatus">—</strong>
+          </div>
+          <div class="profile-line">
+            <span>Остання синхронізація</span>
+            <strong id="profileSync">—</strong>
+          </div>
+        </div>
+
+        <button class="profile-log-jump" type="button" data-scroll="#activity-log">
+          <span>Журнал дій</span>
+          <img src="assets/arrow-down.svg" alt="" aria-hidden="true">
+        </button>
+      </div>
     </section>
 
-    
-    <section class="rebus-subpage-grid">
-      <article class="rebus-subpage-card">
-        <h2>Статус доступу</h2>
-        <p>Профіль користувача, роль, маркер та стан доступу.</p>
-      </article>
-      <article class="rebus-subpage-card">
-        <h2>Робота з REBUS</h2>
-        <p>Перехід до розширення, перевірка доступу та базові дії користувача.</p>
-      </article>
-      <article class="rebus-subpage-card">
-        <h2>Синхронізація</h2>
-        <p>Місце для майбутніх даних синхронізації з адмін-порталом.</p>
-      </article>
-    </section>
+    <section id="activity-log" class="profile-log-section">
+      <h2>Журнал дій</h2>
 
+      <div class="profile-log-wrap">
+        <table class="profile-log-table">
+          <thead>
+            <tr>
+              <th>Час</th>
+              <th>Подія</th>
+              <th>Статус</th>
+              <th>Маркер</th>
+            </tr>
+          </thead>
+          <tbody id="activityRows">
+            <tr>
+              <td colspan="4" class="log-empty">Завантаження журналу...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
   </main>
 
   <script>
+    function formatDateTime(value) {
+      if (!value) return '—';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return date.toLocaleString('uk-UA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    }
+
+    function normalizeStatus(status, isActive) {
+      if (status === 'active' || isActive === true) return 'Активний';
+      if (status === 'inactive' || isActive === false) return 'Неактивний';
+      if (status === 'deleted') return 'Видалений';
+      return status || '—';
+    }
+
+    function renderLogs(rows) {
+      const body = document.getElementById('activityRows');
+      if (!body) return;
+
+      if (!rows || !rows.length) {
+        body.innerHTML = '<tr><td colspan="4" class="log-empty">Записів журналу поки немає.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = rows.map((row) => {
+        const statusClass = row.status === 'success' ? 'ok' : row.status === 'error' ? 'bad' : 'neutral';
+        return `
+          <tr>
+            <td>${formatDateTime(row.created_at)}</td>
+            <td>${row.action || '—'}</td>
+            <td><span class="log-status ${statusClass}">${row.status || '—'}</span></td>
+            <td>${row.marker || '—'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
     window.addEventListener('DOMContentLoaded', async () => {
+      document.querySelector('[data-scroll]')?.addEventListener('click', (event) => {
+        const target = document.querySelector(event.currentTarget.dataset.scroll);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
       const A = window.rebusAuth;
       const ctx = await A.requireUser();
       if (!ctx) return;
+
       const aal = await A.getAal();
-      if (aal !== 'aal2') { location.href = 'verify-2fa.html'; return; }
+      if (aal !== 'aal2') {
+        location.href = 'verify-2fa.html';
+        return;
+      }
+
+      const user = ctx.session.user;
+      const profile = ctx.profile || {};
+      const email = profile.email || user.email || '—';
+      const marker = profile.marker || profile.access_marker || '—';
+
+      A.$('profileEmail').textContent = email;
+      A.$('profileMarker').textContent = marker;
+      A.$('profileStatus').textContent = normalizeStatus(profile.status, profile.is_active);
+      A.$('profileSync').textContent = formatDateTime(profile.updated_at || profile.last_login || profile.created_at);
 
       A.$('logoutBtn')?.addEventListener('click', async () => {
         await A.supabase.auth.signOut();
         location.href = 'index.html';
       });
+
+      try {
+        let query = A.supabase
+          .from('activity_logs')
+          .select('id, marker, email, action, status, created_at')
+          .order('created_at', { ascending: false })
+          .limit(50);
+
+        if (email && marker && marker !== '—') {
+          query = query.or(`email.eq.${email},marker.eq.${marker}`);
+        } else if (email) {
+          query = query.eq('email', email);
+        } else if (marker && marker !== '—') {
+          query = query.eq('marker', marker);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        renderLogs(data || []);
+      } catch (error) {
+        console.warn('[REBUS] activity log error:', error?.message || error);
+        renderLogs([]);
+      }
     });
   </script>
-
 </body>
 </html>
