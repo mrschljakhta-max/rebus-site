@@ -661,3 +661,38 @@ transition:.2s ease;
 .hero-arrow:hover{transform:translateX(-50%) scale(1.08)}
 .hero-arrow img{width:64px;height:64px;display:block}
 #menu-block{height:100vh}
+
+
+/* === REBUS: remove empty black block after cabinet background === */
+.cabinet-clean-page{
+  background:#edf1f4 !important;
+}
+
+.cabinet-clean{
+  min-height:0 !important;
+  height:auto !important;
+  background:#edf1f4 !important;
+  overflow:hidden !important;
+}
+
+.cabinet-clean-bg{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+
+.cabinet-clean::after{
+  content:none !important;
+}
+
+.cabinet-clean-hero{
+  height:100vh !important;
+}
+
+.menu-block-anchor{
+  top:100vh !important;
+  height:0 !important;
+}
