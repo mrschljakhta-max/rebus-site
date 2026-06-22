@@ -886,3 +886,7 @@ background:#dfe2e5;
 .third-block-download{
   display:none !important;
 }
+
+.menu-next-arrow{position:absolute!important;right:8%;top:103vw;z-index:9999;width:72px;height:72px;display:block}
+.menu-next-arrow img{width:100%;height:100%}
+.menu-next-arrow:hover,.hero-arrow:hover{transform:translateY(6px)}
