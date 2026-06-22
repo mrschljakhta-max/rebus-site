@@ -964,3 +964,43 @@ background:#dfe2e5;
 .menu-cards-base{
   pointer-events:none !important;
 }
+
+
+/* === REBUS fix: first-block arrow inside rectangle, white === */
+.hero-arrow{
+  position:absolute !important;
+  left:auto !important;
+  top:auto !important;
+  right:14.6% !important;
+  bottom:14.7% !important;
+  width:64px !important;
+  height:64px !important;
+  z-index:2147483647 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  cursor:pointer !important;
+  background:transparent !important;
+  border:0 !important;
+  transform:none !important;
+  transition:transform .22s ease, opacity .22s ease, filter .22s ease !important;
+}
+
+.hero-arrow img{
+  width:64px !important;
+  height:64px !important;
+  display:block !important;
+  object-fit:contain !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  filter:brightness(0) invert(1) !important;
+}
+
+.hero-arrow:hover{
+  transform:translateY(7px) !important;
+  opacity:.86 !important;
+  filter:drop-shadow(0 0 16px rgba(255,255,255,.75)) !important;
+}
