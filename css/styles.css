@@ -748,7 +748,7 @@ transition:.2s ease;
 .menu-cards-area{
   position:absolute !important;
   left:24.5vw !important;
-  top:54.5vw !important;
+  top:60vw !important;
   width:67vw !important;
   aspect-ratio:1366 / 768 !important;
   z-index:8 !important;
