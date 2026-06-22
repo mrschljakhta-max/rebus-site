@@ -8,93 +8,94 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png" />
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css?v=cabinet-home-v1" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/auth.js" defer></script>
 </head>
-<body>
-  <div class="shell">
-    <aside class="side">
-      <div class="brand">
-        <img src="assets/favicon.png" alt="REBUS" />
-        <div class="brand-title">REBUS <span>Secure</span></div>
+<body class="cabinet-home-page">
+  <section id="top" class="cabinet-hero">
+    <video class="cabinet-hero-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+      <source src="assets/page-1-girl.mp4" type="video/mp4" />
+    </video>
+    <div class="cabinet-hero-shade" aria-hidden="true"></div>
+
+    <div class="cabinet-hero-content">
+      <div class="cabinet-hero-brand">
+        <div class="cabinet-hero-title">Rebus</div>
+        <img class="cabinet-hero-mark" src="assets/favicon.png" alt="REBUS" />
       </div>
-      <nav class="nav">
-        <a class="active" href="cabinet.html">Кабінет</a>
-        <a href="#learning">Навчання</a>
-        <a href="#tools">Довідники</a>
-        <a href="#support">Підтримка</a>
-      </nav>
-      <div class="side-bottom">
-        <button id="logoutBtn" class="btn secondary" type="button">Вийти</button>
+
+      <button class="cabinet-start-btn" type="button" data-scroll="#site-menu">РОЗПОЧАТИ</button>
+      <button class="cabinet-down-arrow" type="button" data-scroll="#site-menu" aria-label="Перейти до меню">⌄</button>
+    </div>
+
+    <button id="logoutBtn" class="cabinet-logout" type="button">Вийти</button>
+  </section>
+
+  <section id="site-menu" class="cabinet-menu-section">
+    <div class="cabinet-menu-title">
+      <span>Меню</span>
+      <span>сайту</span>
+    </div>
+
+    <div class="cabinet-menu-cards" aria-label="Меню сайту">
+      <a class="cabinet-menu-card card-cabinet" href="#top">
+        <span>КАБІНЕТ</span>
+      </a>
+      <a class="cabinet-menu-card card-learning" href="#learning">
+        <span>НАВЧАННЯ</span>
+      </a>
+      <a class="cabinet-menu-card card-contacts" href="#support">
+        <span>КОНТАКТИ</span>
+      </a>
+    </div>
+
+    <button class="cabinet-section-arrow" type="button" data-scroll="#extension">⌄</button>
+  </section>
+
+  <section id="extension" class="cabinet-extension-section">
+    <div class="cabinet-extension-card">
+      <img class="cabinet-extension-icon" src="assets/favicon.png" alt="REBUS Secure" />
+      <div>
+        <h2>REBUS Secure</h2>
+        <p>Скачати розширення для браузера</p>
       </div>
-    </aside>
-    <main class="main">
-      <header class="top">
-        <div>
-          <h1>Особистий кабінет</h1>
-          <div class="muted">REBUS Secure User Portal</div>
-        </div>
-        <div class="profile-mini"><strong id="userName">—</strong><span id="userEmail">—</span></div>
-      </header>
+      <a class="cabinet-download-btn" href="#" aria-label="Скачати розширення REBUS Secure">↓</a>
+    </div>
+  </section>
 
-      <section class="grid">
-        <div class="panel pad">
-          <h3>Статус доступу</h3>
-          <span id="accessBadge" class="badge">● Активний</span>
-          <p class="muted">Доступ підтверджено через Google та 2FA.</p>
-        </div>
-        <div class="panel pad">
-          <h3>Роль</h3>
-          <div id="roleText" style="font-size:28px;font-weight:950">—</div>
-          <p class="muted">Роль визначає доступні модулі REBUS.</p>
-        </div>
-        <div class="panel pad">
-          <h3>Розширення</h3>
-          <span class="badge warn">● Синхронізується окремо</span>
-          <p class="muted">Пакування та розпакування файлів виконує тільки розширення.</p>
-        </div>
+  <section id="learning" class="cabinet-info-section">
+    <h2>Навчання</h2>
+    <p>Тут буде сторінка правил користування REBUS Secure та коротка інструкція для користувача.</p>
+  </section>
 
-        <div class="panel pad wide">
-          <h2>Дані профілю</h2>
-          <div class="kv">
-            <div class="kv-row"><span class="muted">Email</span><strong id="profileEmail">—</strong></div>
-            <div class="kv-row"><span class="muted">Маркер</span><strong id="profileMarker">—</strong></div>
-            <div class="kv-row"><span class="muted">Статус</span><strong id="profileStatus">—</strong></div>
-            <div class="kv-row"><span class="muted">Остання синхронізація</span><strong id="profileSync">—</strong></div>
-          </div>
-        </div>
+  <section id="support" class="cabinet-info-section cabinet-info-dark">
+    <h2>Контакти</h2>
+    <p>Блок підтримки та зв'язку з адміністратором REBUS Secure.</p>
+  </section>
 
-        <div id="learning" class="panel pad wide">
-          <h2>Навчальний центр</h2>
-          <p class="muted">Тут буде коротке навчання роботі з розширенням REBUS Secure.</p>
-          <div class="learn-list">
-            <div class="learn-item"><strong>1. Встановлення розширення</strong><span class="muted">Як додати REBUS Secure у Chrome та перевірити статус доступу.</span></div>
-            <div class="learn-item"><strong>2. Синхронізація доступу</strong><span class="muted">Як підтягнути роль, маркер та статус користувача.</span></div>
-            <div class="learn-item"><strong>3. Пакування файлів</strong><span class="muted">Файли обробляються локально в розширенні, не на сайті.</span></div>
-            <div class="learn-item"><strong>4. Розпакування файлів</strong><span class="muted">Доступно для ролей, яким адміністратор дозволив цю операцію.</span></div>
-          </div>
-        </div>
-
-        <div id="tools" class="panel pad">
-          <h3>Довідники</h3>
-          <p class="muted">Місце для майбутніх довідників та службових матеріалів.</p>
-        </div>
-        <div id="support" class="panel pad">
-          <h3>Підтримка</h3>
-          <p class="muted">Звернення до адміністратора REBUS Secure.</p>
-        </div>
-        <div class="panel pad">
-          <h3>Адмін-портал</h3>
-          <p class="muted">Доступний тільки адміністраторам.</p>
-          <a id="adminLink" class="ghost-link" href="https://admin.rebus-secure.com" hidden>Перейти</a><span id="adminNotice" class="muted">Доступно лише адміністраторам.</span>
-        </div>
-      </section>
-    </main>
+  <div class="cabinet-profile-data" aria-hidden="true">
+    <span id="userName">—</span>
+    <span id="userEmail">—</span>
+    <span id="profileEmail">—</span>
+    <span id="profileMarker">—</span>
+    <span id="profileStatus">—</span>
+    <span id="profileSync">—</span>
+    <span id="roleText">—</span>
+    <a id="adminLink" href="https://admin.rebus-secure.com" hidden>Адмін-портал</a>
+    <span id="adminNotice">—</span>
   </div>
+
   <script>
     window.addEventListener('DOMContentLoaded', async () => {
+      document.querySelectorAll('[data-scroll]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const target = document.querySelector(btn.dataset.scroll);
+          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+
       const A = window.rebusAuth;
       const ctx = await A.requireUser();
       if (!ctx) return;
@@ -119,10 +120,13 @@
       const adminNotice = A.$('adminNotice');
       if (A.isAdminRole(role)) {
         if (adminLink) adminLink.hidden = false;
-        if (adminNotice) adminNotice.textContent = 'Адмін-доступ підтверджено. Можна перейти до адмін-порталу.';
+        if (adminNotice) adminNotice.textContent = 'Адмін-доступ підтверджено.';
       }
 
-      A.$('logoutBtn')?.addEventListener('click', async () => { await A.supabase.auth.signOut(); location.href = 'index.html'; });
+      A.$('logoutBtn')?.addEventListener('click', async () => {
+        await A.supabase.auth.signOut();
+        location.href = 'index.html';
+      });
     });
   </script>
 </body>
