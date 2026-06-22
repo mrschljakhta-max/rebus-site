@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REBUS Secure — Навчання</title>
+  <link rel="icon" href="assets/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png" />
+  <link rel="stylesheet" href="css/styles.css?v=rebus-pages-v1" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js" defer></script>
+</head>
+
+<body class="rebus-subpage">
+  <main class="rebus-subpage-shell">
+    <header class="rebus-subpage-top">
+      <a class="rebus-back-link" href="cabinet.html">← На головну</a>
+      <button id="logoutBtn" class="cabinet-clean-logout" type="button">Вийти</button>
+    </header>
+
+    <section class="rebus-subpage-hero">
+      <div class="rebus-subpage-kicker">Правила користування</div>
+      <h1>Навчання</h1>
+      <p>Коротка навчальна сторінка для користувачів REBUS Secure.</p>
+    </section>
+
+    
+    <section class="rebus-subpage-grid">
+      <article class="rebus-subpage-card">
+        <h2>1. Встановлення</h2>
+        <p>Як додати REBUS Secure у браузер та перевірити його стан.</p>
+      </article>
+      <article class="rebus-subpage-card">
+        <h2>2. Шифрування</h2>
+        <p>Основні правила підготовки файлів і створення REBUS-файлу.</p>
+      </article>
+      <article class="rebus-subpage-card">
+        <h2>3. Розшифрування</h2>
+        <p>Доступно тільки для ролей, яким адміністратор дозволив операцію.</p>
+      </article>
+    </section>
+
+  </main>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', async () => {
+      const A = window.rebusAuth;
+      const ctx = await A.requireUser();
+      if (!ctx) return;
+      const aal = await A.getAal();
+      if (aal !== 'aal2') { location.href = 'verify-2fa.html'; return; }
+
+      A.$('logoutBtn')?.addEventListener('click', async () => {
+        await A.supabase.auth.signOut();
+        location.href = 'index.html';
+      });
+    });
+  </script>
+
+</body>
+</html>
