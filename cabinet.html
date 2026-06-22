@@ -8,120 +8,31 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png" />
-  <link rel="stylesheet" href="css/styles.css?v=cabinet-home-v1" />
+  <link rel="stylesheet" href="css/styles.css?v=cabinet-minimal-v1" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/auth.js" defer></script>
 </head>
-<body class="cabinet-home-page">
-  <section id="top" class="cabinet-hero">
-    <video class="cabinet-hero-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
-      <source src="assets/page-1-girl.mp4" type="video/mp4" />
-    </video>
-    <div class="cabinet-hero-shade" aria-hidden="true"></div>
+<body class="cabinet-clean-page">
+  <main class="cabinet-clean">
+    <img class="cabinet-clean-bg" src="assets/cabinet-bg.svg" alt="" aria-hidden="true" />
 
-    <div class="cabinet-hero-content">
-      <div class="cabinet-hero-brand">
-        <div class="cabinet-hero-title">Rebus</div>
-        <img class="cabinet-hero-mark" src="assets/favicon.png" alt="REBUS" />
-      </div>
+    <section class="cabinet-clean-hero" aria-label="REBUS">
+      <video class="cabinet-clean-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+        <source src="assets/page-1-girl.mp4" type="video/mp4" />
+      </video>
+    </section>
 
-      <button class="cabinet-start-btn" type="button" data-scroll="#site-menu">РОЗПОЧАТИ</button>
-      <button class="cabinet-down-arrow" type="button" data-scroll="#site-menu" aria-label="Перейти до меню">⌄</button>
-    </div>
-
-    <button id="logoutBtn" class="cabinet-logout" type="button">Вийти</button>
-  </section>
-
-  <section id="site-menu" class="cabinet-menu-section">
-    <div class="cabinet-menu-title">
-      <span>Меню</span>
-      <span>сайту</span>
-    </div>
-
-    <div class="cabinet-menu-cards" aria-label="Меню сайту">
-      <a class="cabinet-menu-card card-cabinet" href="#top">
-        <span>КАБІНЕТ</span>
-      </a>
-      <a class="cabinet-menu-card card-learning" href="#learning">
-        <span>НАВЧАННЯ</span>
-      </a>
-      <a class="cabinet-menu-card card-contacts" href="#support">
-        <span>КОНТАКТИ</span>
-      </a>
-    </div>
-
-    <button class="cabinet-section-arrow" type="button" data-scroll="#extension">⌄</button>
-  </section>
-
-  <section id="extension" class="cabinet-extension-section">
-    <div class="cabinet-extension-card">
-      <img class="cabinet-extension-icon" src="assets/favicon.png" alt="REBUS Secure" />
-      <div>
-        <h2>REBUS Secure</h2>
-        <p>Скачати розширення для браузера</p>
-      </div>
-      <a class="cabinet-download-btn" href="#" aria-label="Скачати розширення REBUS Secure">↓</a>
-    </div>
-  </section>
-
-  <section id="learning" class="cabinet-info-section">
-    <h2>Навчання</h2>
-    <p>Тут буде сторінка правил користування REBUS Secure та коротка інструкція для користувача.</p>
-  </section>
-
-  <section id="support" class="cabinet-info-section cabinet-info-dark">
-    <h2>Контакти</h2>
-    <p>Блок підтримки та зв'язку з адміністратором REBUS Secure.</p>
-  </section>
-
-  <div class="cabinet-profile-data" aria-hidden="true">
-    <span id="userName">—</span>
-    <span id="userEmail">—</span>
-    <span id="profileEmail">—</span>
-    <span id="profileMarker">—</span>
-    <span id="profileStatus">—</span>
-    <span id="profileSync">—</span>
-    <span id="roleText">—</span>
-    <a id="adminLink" href="https://admin.rebus-secure.com" hidden>Адмін-портал</a>
-    <span id="adminNotice">—</span>
-  </div>
+    <button id="logoutBtn" class="cabinet-clean-logout" type="button">Вийти</button>
+  </main>
 
   <script>
     window.addEventListener('DOMContentLoaded', async () => {
-      document.querySelectorAll('[data-scroll]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const target = document.querySelector(btn.dataset.scroll);
-          if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-      });
-
       const A = window.rebusAuth;
       const ctx = await A.requireUser();
       if (!ctx) return;
       const aal = await A.getAal();
       if (aal !== 'aal2') { location.href = 'verify-2fa.html'; return; }
-
-      const user = ctx.session.user;
-      const profile = ctx.profile || {};
-      const name = profile.full_name || profile.name || user.user_metadata?.full_name || user.email;
-      const role = A.normalizeRole(profile.role || 'user');
-      const status = profile.status || (profile.is_active === false ? 'inactive' : 'active');
-
-      A.$('userName').textContent = name;
-      A.$('userEmail').textContent = user.email;
-      A.$('profileEmail').textContent = user.email;
-      A.$('profileMarker').textContent = profile.marker || profile.access_marker || '—';
-      A.$('profileStatus').textContent = status === 'active' ? 'Активний' : status;
-      A.$('profileSync').textContent = new Date().toLocaleString('uk-UA');
-      A.$('roleText').textContent = A.roleLabel(role);
-
-      const adminLink = A.$('adminLink');
-      const adminNotice = A.$('adminNotice');
-      if (A.isAdminRole(role)) {
-        if (adminLink) adminLink.hidden = false;
-        if (adminNotice) adminNotice.textContent = 'Адмін-доступ підтверджено.';
-      }
 
       A.$('logoutBtn')?.addEventListener('click', async () => {
         await A.supabase.auth.signOut();
