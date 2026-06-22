@@ -21,19 +21,27 @@
       <video class="cabinet-clean-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
         <source src="assets/page-1-girl.mp4" type="video/mp4" />
       </video>
-      <img class="hero-overlay" src="assets/hero-overlay.svg" alt="">
-      <a href="#menu-block" class="hero-arrow">
-        <img src="assets/arrow.svg" alt="down">
-      </a>
     </section>
 
-    <section id="menu-block"></section>
+    <img class="hero-overlay-svg" src="assets/hero-overlay.svg" alt="" aria-hidden="true" />
+
+    
+    <button id="heroArrowBtn" class="hero-arrow-btn" type="button" aria-label="Перейти до другого блоку">
+      <img src="assets/arrow.svg" alt="" aria-hidden="true" />
+    </button>
 
     <button id="logoutBtn" class="cabinet-clean-logout" type="button">Вийти</button>
+      <span id="menu-block" class="menu-block-anchor" aria-hidden="true"></span>
   </main>
 
   <script>
     window.addEventListener('DOMContentLoaded', async () => {
+
+      document.getElementById('heroArrowBtn')?.addEventListener('click', () => {
+        const target = document.getElementById('menu-block');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
       const A = window.rebusAuth;
       const ctx = await A.requireUser();
       if (!ctx) return;
