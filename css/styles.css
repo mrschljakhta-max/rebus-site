@@ -827,3 +827,18 @@ transition:.2s ease;
     width:86vw !important;
   }
 }
+
+
+.download-block{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:8vw;
+min-height:100vh;
+background:#dfe2e5;
+}
+.download-logo{width:36vw;max-width:600px;}
+.download-content h2{font-size:4rem;margin:0;}
+.download-content p{font-size:1.6rem;margin:10px 0 30px;}
+.download-link img{width:90px;height:auto;}
+.download-link:hover{opacity:.8;}
