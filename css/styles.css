@@ -1421,3 +1421,111 @@ background:#dfe2e5;
     margin-top:54px;
   }
 }
+
+
+/* === REBUS training page v1 === */
+html{
+  scroll-behavior:smooth;
+}
+
+.rebus-training-page{
+  margin:0;
+  min-height:100vh;
+  background:#e9eef1;
+  color:#292929;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  overflow-x:hidden;
+}
+
+.training-page-main{
+  position:relative;
+  width:100%;
+  background:#e9eef1;
+}
+
+.training-page-bg{
+  display:block;
+  width:100%;
+  height:auto;
+  margin:0;
+  padding:0;
+  user-select:none;
+  pointer-events:none;
+}
+
+.training-arrow{
+  position:absolute;
+  z-index:50;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:76px;
+  height:76px;
+  cursor:pointer;
+  text-decoration:none;
+  transition:transform .22s ease, opacity .22s ease, filter .22s ease;
+}
+
+.training-arrow img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  filter:brightness(0);
+}
+
+.training-arrow:hover{
+  transform:translateY(8px);
+  opacity:.78;
+  filter:drop-shadow(0 12px 18px rgba(0,0,0,.22));
+}
+
+.training-arrow-1{
+  right:7.8%;
+  top:28.5%;
+}
+
+.training-arrow-1 img{
+  filter:brightness(0);
+}
+
+.training-arrow-2{
+  right:7.8%;
+  top:61.8%;
+}
+
+.training-arrow-2 img{
+  filter:brightness(0) invert(1);
+}
+
+.training-anchor{
+  position:absolute;
+  left:0;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+}
+
+.training-anchor-decrypt{
+  top:33.3%;
+}
+
+.training-anchor-roles{
+  top:66.6%;
+}
+
+@media(max-width:900px){
+  .training-arrow{
+    width:52px;
+    height:52px;
+    right:5.5%;
+  }
+
+  .training-arrow-1{
+    top:29.2%;
+  }
+
+  .training-arrow-2{
+    top:62.5%;
+  }
+}

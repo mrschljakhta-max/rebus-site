@@ -8,41 +8,38 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png" />
-  <link rel="stylesheet" href="css/styles.css?v=rebus-pages-v1" />
+  <link rel="stylesheet" href="css/styles.css?v=training-v1" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/auth.js" defer></script>
 </head>
+<body class="rebus-training-page">
+  <nav class="rebus-topnav">
+    <a class="rebus-nav-logo" href="cabinet.html" aria-label="Повернутися на сторінку меню">
+      <img src="assets/favicon.png" alt="REBUS">
+    </a>
 
-<body class="rebus-subpage">
-  <main class="rebus-subpage-shell">
-    <header class="rebus-subpage-top">
-      <a class="rebus-back-link" href="cabinet.html">← На головну</a>
-      <button id="logoutBtn" class="cabinet-clean-logout" type="button">Вийти</button>
-    </header>
+    <div class="rebus-nav-links">
+      <a href="user-cabinet.html">Особистий кабінет</a>
+      <a class="active" href="training.html">Навчання</a>
+      <a href="contacts.html">Підтримка</a>
+      <button id="logoutBtn" type="button">Вихід</button>
+    </div>
+  </nav>
 
-    <section class="rebus-subpage-hero">
-      <div class="rebus-subpage-kicker">Правила користування</div>
-      <h1>Навчання</h1>
-      <p>Коротка навчальна сторінка для користувачів REBUS Secure.</p>
-    </section>
+  <main class="training-page-main">
+    <img class="training-page-bg" src="assets/training-page-bg.png" alt="Інструкція REBUS" />
 
-    
-    <section class="rebus-subpage-grid">
-      <article class="rebus-subpage-card">
-        <h2>1. Встановлення</h2>
-        <p>Як додати REBUS Secure у браузер та перевірити його стан.</p>
-      </article>
-      <article class="rebus-subpage-card">
-        <h2>2. Шифрування</h2>
-        <p>Основні правила підготовки файлів і створення REBUS-файлу.</p>
-      </article>
-      <article class="rebus-subpage-card">
-        <h2>3. Розшифрування</h2>
-        <p>Доступно тільки для ролей, яким адміністратор дозволив операцію.</p>
-      </article>
-    </section>
+    <a class="training-arrow training-arrow-1" href="#training-decrypt" aria-label="Перейти до другого блоку">
+      <img src="assets/arrow-down.svg" alt="" aria-hidden="true">
+    </a>
 
+    <a class="training-arrow training-arrow-2" href="#training-roles" aria-label="Перейти до третього блоку">
+      <img src="assets/arrow-down.svg" alt="" aria-hidden="true">
+    </a>
+
+    <span id="training-decrypt" class="training-anchor training-anchor-decrypt" aria-hidden="true"></span>
+    <span id="training-roles" class="training-anchor training-anchor-roles" aria-hidden="true"></span>
   </main>
 
   <script>
@@ -50,8 +47,12 @@
       const A = window.rebusAuth;
       const ctx = await A.requireUser();
       if (!ctx) return;
+
       const aal = await A.getAal();
-      if (aal !== 'aal2') { location.href = 'verify-2fa.html'; return; }
+      if (aal !== 'aal2') {
+        location.href = 'verify-2fa.html';
+        return;
+      }
 
       A.$('logoutBtn')?.addEventListener('click', async () => {
         await A.supabase.auth.signOut();
@@ -59,6 +60,5 @@
       });
     });
   </script>
-
 </body>
 </html>
