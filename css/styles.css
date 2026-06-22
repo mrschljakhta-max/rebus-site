@@ -733,24 +733,97 @@ transition:.2s ease;
 }
 
 
-/* second block hover cards */
+/* === REBUS second block cards: base grayscale + color on hover === */
+#menu-block,
+.menu-block-anchor{
+  position:absolute !important;
+  left:0 !important;
+  top:56.25vw !important;
+  width:1px !important;
+  height:1px !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+
+.menu-cards-area{
+  position:absolute !important;
+  left:24.5vw !important;
+  top:54.5vw !important;
+  width:67vw !important;
+  aspect-ratio:1366 / 768 !important;
+  z-index:8 !important;
+  pointer-events:auto !important;
+}
+
+.menu-cards-base{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  object-fit:contain !important;
+  display:block !important;
+  pointer-events:none !important;
+  user-select:none !important;
+}
+
+.menu-card-zone{
+  position:absolute !important;
+  inset:0 !important;
+  display:block !important;
+  background-image:url('../assets/menu-cards-hover.svg') !important;
+  background-repeat:no-repeat !important;
+  background-size:100% 300% !important;
+  opacity:0 !important;
+  transition:opacity .32s ease, filter .32s ease !important;
+  z-index:2 !important;
+  cursor:pointer !important;
+}
+
+.menu-card-zone:hover{
+  opacity:1 !important;
+  filter:drop-shadow(0 18px 34px rgba(0,0,0,.18)) !important;
+}
+
+.zone-cabinet{
+  background-position:center top !important;
+  clip-path:polygon(23% 5%, 46% 5%, 36% 92%, 12% 92%) !important;
+}
+
+.zone-learning{
+  background-position:center center !important;
+  clip-path:polygon(48% 5%, 70% 5%, 60% 92%, 38% 92%) !important;
+}
+
+.zone-contacts{
+  background-position:center bottom !important;
+  clip-path:polygon(72% 5%, 95% 5%, 85% 92%, 62% 92%) !important;
+}
+
+.section-anchor-learning{
+  position:absolute !important;
+  left:0 !important;
+  top:56.25vw !important;
+  width:1px !important;
+  height:1px !important;
+}
+
+.section-anchor-support{
+  position:absolute !important;
+  left:0 !important;
+  top:112.5vw !important;
+  width:1px !important;
+  height:1px !important;
+}
+
+/* Hide accidental old template from previous test patches if it exists */
 .menu-cards-section{
- display:flex;
- justify-content:center;
- gap:32px;
- padding:40px 20px 80px;
- background:transparent;
+  display:none !important;
 }
-.menu-card{
- width:min(320px,28vw);
-}
-.menu-card img{
- width:100%;
- display:block;
- filter:grayscale(100%);
- transition:.35s ease;
-}
-.menu-card:hover img{
- filter:grayscale(0%);
- transform:scale(1.03);
+
+@media(max-width:900px){
+  .menu-cards-area{
+    left:8vw !important;
+    top:65vw !important;
+    width:86vw !important;
+  }
 }

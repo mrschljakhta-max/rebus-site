@@ -14,7 +14,7 @@
   <script src="js/auth.js" defer></script>
 </head>
 <body class="cabinet-clean-page">
-  <main class="cabinet-clean">
+  <main id="top" class="cabinet-clean">
     <img class="cabinet-clean-bg" src="assets/cabinet-bg.svg" alt="" aria-hidden="true" />
 
     <section class="cabinet-clean-hero" aria-label="REBUS">
@@ -26,15 +26,17 @@
         <img src="assets/arrow.svg" alt="down">
       </a>
     </section>
+    <span id="menu-block" class="menu-block-anchor" aria-hidden="true"></span>
 
-    
-<section id="menu-block" class="menu-cards-section">
-  <div class="menu-card"><img src="assets/hero-overlay.svg" alt=""></div>
-  <div class="menu-card"><img src="assets/cabinet-bg.svg" alt=""></div>
-</section>
-
-
-    <button id="logoutBtn" class="cabinet-clean-logout" type="button">Вийти</button>
+    <div class="menu-cards-area" aria-label="Меню сайту">
+      <img class="menu-cards-base" src="assets/menu-cards-base.svg" alt="" aria-hidden="true" />
+      <a class="menu-card-zone zone-cabinet" href="#top" aria-label="Кабінет"></a>
+      <a class="menu-card-zone zone-learning" href="#learning" aria-label="Навчання"></a>
+      <a class="menu-card-zone zone-contacts" href="#support" aria-label="Контакти"></a>
+    </div>
+<button id="logoutBtn" class="cabinet-clean-logout" type="button">Вийти</button>
+      <span id="learning" class="section-anchor-learning" aria-hidden="true"></span>
+    <span id="support" class="section-anchor-support" aria-hidden="true"></span>
   </main>
 
   <script>
