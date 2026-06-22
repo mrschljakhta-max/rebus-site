@@ -844,16 +844,45 @@ background:#dfe2e5;
 .download-link:hover{opacity:.8;}
 
 
-/* third block download icon */
-.download-block{display:none !important;}
-.third-block-download{
-position:absolute;
-left:59%;
-top:134vw;
-z-index:10;
+/* === REBUS: third block download icon fix === */
+.download-block{
+  display:none !important;
 }
-.third-block-download img{
-width:90px;
-height:auto;
-display:block;
+
+.rebus-download-icon{
+  position:absolute !important;
+  left:72.2% !important;
+  top:139.8vw !important;
+  transform:translate(-50%,0) !important;
+  z-index:50 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:92px !important;
+  height:92px !important;
+  text-decoration:none !important;
+  cursor:pointer !important;
+  pointer-events:auto !important;
+  transition:transform .22s ease, opacity .22s ease, filter .22s ease !important;
+}
+
+.rebus-download-icon img{
+  display:block !important;
+  width:92px !important;
+  height:92px !important;
+  object-fit:contain !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  border:0 !important;
+}
+
+.rebus-download-icon:hover{
+  transform:translate(-50%,6px) scale(1.04) !important;
+  opacity:.86 !important;
+  filter:drop-shadow(0 12px 20px rgba(0,0,0,.18)) !important;
+}
+
+/* Hide old broken download link if it remains from cache/older markup */
+.third-block-download{
+  display:none !important;
 }
