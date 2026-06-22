@@ -23,10 +23,8 @@
       </video>
     </section>
 
-    <img class="hero-overlay-svg" src="assets/hero-overlay.svg" alt="" aria-hidden="true" />
-
     
-    <button id="heroArrowBtn" class="hero-arrow-btn" type="button" aria-label="Перейти до другого блоку">
+    <button class="hero-scroll-arrow" type="button" aria-label="Перейти до другого блоку">
       <img src="assets/arrow.svg" alt="" aria-hidden="true" />
     </button>
 
@@ -37,7 +35,7 @@
   <script>
     window.addEventListener('DOMContentLoaded', async () => {
 
-      document.getElementById('heroArrowBtn')?.addEventListener('click', () => {
+      document.querySelector('.hero-scroll-arrow')?.addEventListener('click', () => {
         const target = document.getElementById('menu-block');
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });

@@ -641,52 +641,48 @@ body.login-video-page .login-word:hover{
 }
 
 
-/* === REBUS first block: exact overlay + visible active arrow === */
+/* === REBUS first block: exact SVG overlay + active arrow fix === */
 .hero-overlay-svg{
   position:absolute !important;
   inset:0 !important;
   width:100% !important;
   height:100vh !important;
   object-fit:cover !important;
-  z-index:5 !important;
+  z-index:3 !important;
   pointer-events:none !important;
-  user-select:none !important;
 }
 
-.hero-arrow-btn{
+.hero-scroll-arrow{
   position:absolute !important;
   left:50% !important;
-  top:72vh !important;
-  transform:translate(-50%,-50%) !important;
-  z-index:9999 !important;
-  width:96px !important;
-  height:96px !important;
+  top:calc(100vh - 88px) !important;
+  transform:translateX(-50%) !important;
+  z-index:10 !important;
+  width:92px !important;
+  height:92px !important;
   padding:0 !important;
-  margin:0 !important;
   border:0 !important;
-  outline:0 !important;
   background:transparent !important;
   cursor:pointer !important;
-  display:block !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
   opacity:1 !important;
-  visibility:visible !important;
   pointer-events:auto !important;
-  transition:transform .22s ease, filter .22s ease !important;
+  transition:transform .22s ease, filter .22s ease, opacity .22s ease !important;
 }
 
-.hero-arrow-btn img{
+.hero-scroll-arrow img{
   display:block !important;
   width:100% !important;
   height:100% !important;
   object-fit:contain !important;
-  opacity:1 !important;
-  visibility:visible !important;
   pointer-events:none !important;
 }
 
-.hero-arrow-btn:hover{
-  transform:translate(-50%,-44%) scale(1.05) !important;
-  filter:drop-shadow(0 0 18px rgba(255,255,255,.85)) !important;
+.hero-scroll-arrow:hover{
+  transform:translateX(-50%) translateY(6px) scale(1.04) !important;
+  filter:drop-shadow(0 0 18px rgba(255,255,255,.72)) !important;
 }
 
 .menu-block-anchor{
