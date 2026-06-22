@@ -639,3 +639,25 @@ body.login-video-page .login-word:hover{
   border-color:rgba(255,26,26,.55);
   background:rgba(0,0,0,.48);
 }
+
+
+.hero-overlay{
+position:absolute;
+inset:0;
+width:100%;
+height:100%;
+object-fit:contain;
+z-index:3;
+pointer-events:none;
+}
+.hero-arrow{
+position:absolute;
+bottom:24px;
+left:50%;
+transform:translateX(-50%);
+z-index:4;
+transition:.2s ease;
+}
+.hero-arrow:hover{transform:translateX(-50%) scale(1.08)}
+.hero-arrow img{width:64px;height:64px;display:block}
+#menu-block{height:100vh}
