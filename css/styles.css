@@ -842,3 +842,18 @@ background:#dfe2e5;
 .download-content p{font-size:1.6rem;margin:10px 0 30px;}
 .download-link img{width:90px;height:auto;}
 .download-link:hover{opacity:.8;}
+
+
+/* third block download icon */
+.download-block{display:none !important;}
+.third-block-download{
+position:absolute;
+left:59%;
+top:134vw;
+z-index:10;
+}
+.third-block-download img{
+width:90px;
+height:auto;
+display:block;
+}
