@@ -641,54 +641,23 @@ body.login-video-page .login-word:hover{
 }
 
 
-/* === REBUS first block: exact SVG overlay + active arrow fix === */
-.hero-overlay-svg{
-  position:absolute !important;
-  inset:0 !important;
-  width:100% !important;
-  height:100vh !important;
-  object-fit:cover !important;
-  z-index:3 !important;
-  pointer-events:none !important;
+.hero-overlay{
+position:absolute;
+inset:0;
+width:100%;
+height:100%;
+object-fit:contain;
+z-index:3;
+pointer-events:none;
 }
-
-.hero-scroll-arrow{
-  position:absolute !important;
-  left:50% !important;
-  top:calc(100vh - 88px) !important;
-  transform:translateX(-50%) !important;
-  z-index:10 !important;
-  width:92px !important;
-  height:92px !important;
-  padding:0 !important;
-  border:0 !important;
-  background:transparent !important;
-  cursor:pointer !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  opacity:1 !important;
-  pointer-events:auto !important;
-  transition:transform .22s ease, filter .22s ease, opacity .22s ease !important;
+.hero-arrow{
+position:absolute;
+bottom:24px;
+left:50%;
+transform:translateX(-50%);
+z-index:4;
+transition:.2s ease;
 }
-
-.hero-scroll-arrow img{
-  display:block !important;
-  width:100% !important;
-  height:100% !important;
-  object-fit:contain !important;
-  pointer-events:none !important;
-}
-
-.hero-scroll-arrow:hover{
-  transform:translateX(-50%) translateY(6px) scale(1.04) !important;
-  filter:drop-shadow(0 0 18px rgba(255,255,255,.72)) !important;
-}
-
-.menu-block-anchor{
-  position:absolute !important;
-  left:0 !important;
-  top:100vh !important;
-  width:1px !important;
-  height:1px !important;
-}
+.hero-arrow:hover{transform:translateX(-50%) scale(1.08)}
+.hero-arrow img{width:64px;height:64px;display:block}
+#menu-block{height:100vh}
