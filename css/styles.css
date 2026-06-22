@@ -696,3 +696,38 @@ transition:.2s ease;
   top:100vh !important;
   height:0 !important;
 }
+
+
+/* === REBUS fix: remove empty menu gap and keep arrow active === */
+#menu-block{
+  height:0 !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+
+.menu-block-anchor{
+  height:0 !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+}
+
+.hero-arrow,
+.hero-arrow-btn{
+  z-index:9999 !important;
+  pointer-events:auto !important;
+  cursor:pointer !important;
+  opacity:1 !important;
+  visibility:visible !important;
+}
+
+.hero-arrow img,
+.hero-arrow-btn img{
+  display:block !important;
+  opacity:1 !important;
+  visibility:visible !important;
+}
+
+.hero-overlay,
+.hero-overlay-svg{
+  pointer-events:none !important;
+}
