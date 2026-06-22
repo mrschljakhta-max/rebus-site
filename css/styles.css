@@ -1529,3 +1529,107 @@ html{
     top:62.5%;
   }
 }
+
+
+/* === REBUS contacts page v1 === */
+.rebus-contact-page{
+  margin:0;
+  min-height:100vh;
+  background:#2d2d2d;
+  color:#f4f4f4;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  overflow-x:hidden;
+}
+
+.contact-page-main{
+  min-height:calc(100vh - 52px);
+  background:#2d2d2d;
+  padding:26px clamp(24px,6vw,88px) 72px;
+}
+
+.contact-hero-media{
+  width:100%;
+  max-width:1420px;
+  height:clamp(220px,29vw,430px);
+  margin:0 auto 24px;
+  overflow:hidden;
+  background:#1f1f1f;
+}
+
+.contact-hero-media video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center center;
+  display:block;
+}
+
+.contact-content{
+  max-width:1420px;
+  margin:0 auto;
+  text-align:center;
+}
+
+.contact-content h1{
+  margin:26px 0 34px;
+  color:#f4f4f4;
+  font-size:clamp(72px,9vw,146px);
+  line-height:.9;
+  font-weight:950;
+  letter-spacing:-.055em;
+}
+
+.contact-box{
+  min-height:124px;
+  border:1px solid rgba(255,255,255,.72);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(42px,5vw,78px);
+  padding:22px 34px;
+}
+
+.contact-icon-link{
+  width:58px;
+  height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  transition:transform .22s ease, opacity .22s ease, filter .22s ease;
+}
+
+.contact-icon-link img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+  filter:brightness(0) invert(1);
+}
+
+.contact-icon-link:hover{
+  transform:translateY(-6px) scale(1.06);
+  opacity:.82;
+  filter:drop-shadow(0 0 16px rgba(255,255,255,.28));
+}
+
+@media(max-width:760px){
+  .contact-page-main{
+    padding:18px 18px 54px;
+  }
+
+  .contact-content h1{
+    margin:26px 0 26px;
+    font-size:clamp(58px,18vw,96px);
+  }
+
+  .contact-box{
+    min-height:108px;
+    gap:34px;
+  }
+
+  .contact-icon-link{
+    width:48px;
+    height:48px;
+  }
+}

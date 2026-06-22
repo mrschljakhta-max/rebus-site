@@ -3,46 +3,54 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>REBUS Secure — Контакти</title>
+  <title>REBUS Secure — Підтримка</title>
   <link rel="icon" href="assets/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png" />
-  <link rel="stylesheet" href="css/styles.css?v=rebus-pages-v1" />
+  <link rel="stylesheet" href="css/styles.css?v=contacts-v1" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/auth.js" defer></script>
 </head>
+<body class="rebus-contact-page">
+  <nav class="rebus-topnav">
+    <a class="rebus-nav-logo" href="cabinet.html" aria-label="Повернутися на сторінку меню">
+      <img src="assets/favicon.png" alt="REBUS">
+    </a>
 
-<body class="rebus-subpage">
-  <main class="rebus-subpage-shell">
-    <header class="rebus-subpage-top">
-      <a class="rebus-back-link" href="cabinet.html">← На головну</a>
-      <button id="logoutBtn" class="cabinet-clean-logout" type="button">Вийти</button>
-    </header>
+    <div class="rebus-nav-links">
+      <a href="user-cabinet.html">Особистий кабінет</a>
+      <a href="training.html">Навчання</a>
+      <a class="active" href="contacts.html">Підтримка</a>
+      <button id="logoutBtn" type="button">Вихід</button>
+    </div>
+  </nav>
 
-    <section class="rebus-subpage-hero">
-      <div class="rebus-subpage-kicker">Зворотний зв’язок</div>
+  <main class="contact-page-main">
+    <section class="contact-hero-media" aria-label="REBUS підтримка">
+      <video autoplay muted loop playsinline preload="auto" poster="assets/contact-bg.png">
+        <source src="assets/contact-hero.mp4" type="video/mp4" />
+      </video>
+    </section>
+
+    <section class="contact-content">
       <h1>Контакти</h1>
-      <p>Окрема сторінка для підтримки, звернень та контактної інформації.</p>
-    </section>
 
-    
-    <section class="rebus-subpage-grid">
-      <article class="rebus-subpage-card">
-        <h2>Підтримка</h2>
-        <p>Звернення до адміністратора REBUS Secure.</p>
-      </article>
-      <article class="rebus-subpage-card">
-        <h2>Проблеми з доступом</h2>
-        <p>Відновлення доступу, 2FA та перевірка ролі користувача.</p>
-      </article>
-      <article class="rebus-subpage-card">
-        <h2>Пропозиції</h2>
-        <p>Місце для майбутнього каналу зворотного зв’язку.</p>
-      </article>
-    </section>
+      <div class="contact-box" aria-label="Контактні посилання">
+        <a href="mailto:noreply@rebus-secure.com" class="contact-icon-link" aria-label="Написати на електронну пошту">
+          <img src="assets/contact-mail.svg" alt="" aria-hidden="true">
+        </a>
 
+        <a href="https://wa.me/380663423184" target="_blank" rel="noopener noreferrer" class="contact-icon-link" aria-label="Написати у WhatsApp">
+          <img src="assets/contact-whatsapp.svg" alt="" aria-hidden="true">
+        </a>
+
+        <a href="https://chromewebstore.google.com/detail/bnhfaamjhhkbkgpddnpaoadibkibojho?utm_source=item-share-cb" target="_blank" rel="noopener noreferrer" class="contact-icon-link" aria-label="Відкрити REBUS у Chrome Web Store">
+          <img src="assets/contact-chrome.svg" alt="" aria-hidden="true">
+        </a>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -50,8 +58,12 @@
       const A = window.rebusAuth;
       const ctx = await A.requireUser();
       if (!ctx) return;
+
       const aal = await A.getAal();
-      if (aal !== 'aal2') { location.href = 'verify-2fa.html'; return; }
+      if (aal !== 'aal2') {
+        location.href = 'verify-2fa.html';
+        return;
+      }
 
       A.$('logoutBtn')?.addEventListener('click', async () => {
         await A.supabase.auth.signOut();
@@ -59,6 +71,5 @@
       });
     });
   </script>
-
 </body>
 </html>
