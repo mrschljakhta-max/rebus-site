@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
   <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png" />
-  <link rel="stylesheet" href="css/styles.css?v=user-cabinet-v1" />
+  <link rel="stylesheet" href="css/styles.css?v=user-cabinet-v2" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/auth.js" defer></script>
@@ -318,7 +318,7 @@
       try {
         const { data, error } = await A.supabase
           .from('action_logs')
-          .select('id, user_id, email, user_email, user_name, user_role, operation, object_name, object_type, file_name, file_size, status, contour, contour_name, contour_names, duration_ms, error_message, metadata, created_at')
+          .select('id, user_id, email, user_email, user_name, user_role, operation, object_name, object_type, file_name, file_size, status, contour, contour_names, duration_ms, error_message, metadata, created_at')
           .order('created_at', { ascending: false })
           .limit(300);
 
@@ -328,7 +328,14 @@
       } catch (error) {
         console.warn('[REBUS] action log error:', error?.message || error);
         state.logs = [];
-        renderLogs([]);
+        const body = document.getElementById('activityRows');
+        const count = document.getElementById('logCount');
+        if (count) count.textContent = 'Показано 0 із 0 записів';
+        if (body) {
+          body.innerHTML = `<tr><td colspan="5" class="log-empty">Не вдалося завантажити журнал: ${escapeHtml(error?.message || String(error))}</td></tr>`;
+        } else {
+          renderLogs([]);
+        }
       } finally {
         if (refreshBtn) refreshBtn.disabled = false;
       }
