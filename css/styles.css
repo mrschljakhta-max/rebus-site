@@ -1666,3 +1666,17 @@ html{
 @media(max-width:620px){
   .privacy-bottom-simple .privacy-contact,.privacy-bottom-simple .privacy-about{grid-template-columns:1fr!important}
 }
+
+
+/* Oval around login word */
+.login-video-page .login-word{
+  border:2px solid rgba(255,255,255,.9) !important;
+  border-radius:999px !important;
+  padding:12px 34px !important;
+  backdrop-filter:blur(4px);
+  background:rgba(0,0,0,.10);
+}
+.login-video-page .login-word:hover{
+  border-color:#ff2b2b !important;
+  box-shadow:0 0 18px rgba(255,43,43,.45);
+}
