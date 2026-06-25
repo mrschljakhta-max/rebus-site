@@ -734,7 +734,7 @@ transition:.2s ease;
 }
 
 
-/* === REBUS second block cards: base grayscale + color on hover === */
+/* === REBUS second block cards: base grayscale + exact diamond hover/click zones === */
 #menu-block,
 .menu-block-anchor{
   position:absolute !important;
@@ -765,9 +765,10 @@ transition:.2s ease;
   display:block !important;
   pointer-events:none !important;
   user-select:none !important;
+  z-index:1 !important;
 }
 
-.menu-card-zone{
+.menu-hover-layer{
   position:absolute !important;
   inset:0 !important;
   display:block !important;
@@ -775,29 +776,59 @@ transition:.2s ease;
   background-repeat:no-repeat !important;
   background-size:100% 300% !important;
   opacity:0 !important;
-  transition:opacity .32s ease, filter .32s ease !important;
   z-index:2 !important;
+  pointer-events:none !important;
+  transition:opacity .32s ease, filter .32s ease !important;
+}
+
+.hover-cabinet{
+  background-position:center top !important;
+  clip-path:polygon(38.75% 7.94%, 56.89% 7.94%, 41.51% 90%, 23.36% 90%) !important;
+}
+
+.hover-learning{
+  background-position:center center !important;
+  clip-path:polygon(58.67% 7.94%, 76.79% 7.94%, 61.42% 90%, 43.27% 90%) !important;
+}
+
+.hover-contacts{
+  background-position:center bottom !important;
+  clip-path:polygon(78.72% 7.94%, 96.87% 7.94%, 81.51% 90%, 63.34% 90%) !important;
+}
+
+.menu-card-hotspots{
+  position:absolute !important;
+  inset:0 !important;
+  width:100% !important;
+  height:100% !important;
+  z-index:5 !important;
+  display:block !important;
+  overflow:visible !important;
+}
+
+.menu-hotspot polygon{
+  fill:rgba(255,255,255,0.001) !important;
+  stroke:transparent !important;
+  pointer-events:all !important;
   cursor:pointer !important;
 }
 
-.menu-card-zone:hover{
+.menu-cards-area:has(.hotspot-cabinet:hover) .hover-cabinet,
+.menu-cards-area:has(.hotspot-cabinet:focus-visible) .hover-cabinet{
   opacity:1 !important;
   filter:drop-shadow(0 18px 34px rgba(0,0,0,.18)) !important;
 }
 
-.zone-cabinet{
-  background-position:center top !important;
-  clip-path:polygon(23% 5%, 46% 5%, 36% 92%, 12% 92%) !important;
+.menu-cards-area:has(.hotspot-learning:hover) .hover-learning,
+.menu-cards-area:has(.hotspot-learning:focus-visible) .hover-learning{
+  opacity:1 !important;
+  filter:drop-shadow(0 18px 34px rgba(0,0,0,.18)) !important;
 }
 
-.zone-learning{
-  background-position:center center !important;
-  clip-path:polygon(48% 5%, 70% 5%, 60% 92%, 38% 92%) !important;
-}
-
-.zone-contacts{
-  background-position:center bottom !important;
-  clip-path:polygon(72% 5%, 95% 5%, 85% 92%, 62% 92%) !important;
+.menu-cards-area:has(.hotspot-contacts:hover) .hover-contacts,
+.menu-cards-area:has(.hotspot-contacts:focus-visible) .hover-contacts{
+  opacity:1 !important;
+  filter:drop-shadow(0 18px 34px rgba(0,0,0,.18)) !important;
 }
 
 .section-anchor-learning{
