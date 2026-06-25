@@ -63,29 +63,110 @@
     </section>
 
     <section id="activity-log" class="profile-log-section">
-      <h2>Журнал дій</h2>
+      <div class="profile-log-heading">
+        <div>
+          <h2>Журнал дій</h2>
+          <p>Історія операцій у системі REBUS</p>
+        </div>
+        <button class="log-refresh-btn" id="logRefreshBtn" type="button" title="Оновити журнал">Оновити</button>
+      </div>
+
+      <div class="profile-log-controls" aria-label="Фільтри журналу дій">
+        <label class="log-search-field">
+          <span>Пошук</span>
+          <input id="logSearch" type="search" placeholder="Операція, об’єкт, контур або статус..." autocomplete="off">
+        </label>
+
+        <div class="log-date-group">
+          <label>
+            <span>Від</span>
+            <input id="logDateFrom" type="date">
+          </label>
+          <label>
+            <span>До</span>
+            <input id="logDateTo" type="date">
+          </label>
+        </div>
+
+        <label>
+          <span>Статус</span>
+          <select id="logStatusFilter">
+            <option value="all">Усі статуси</option>
+            <option value="success">success</option>
+            <option value="error">error</option>
+            <option value="warning">warning</option>
+            <option value="info">info</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Сортування</span>
+          <select id="logSort">
+            <option value="created_desc">Нові спочатку</option>
+            <option value="created_asc">Старі спочатку</option>
+            <option value="operation_asc">Операція А–Я</option>
+            <option value="object_asc">Об’єкт А–Я</option>
+            <option value="contour_asc">Контур А–Я</option>
+          </select>
+        </label>
+
+        <button class="log-reset-btn" id="logResetBtn" type="button">Очистити фільтри</button>
+      </div>
 
       <div class="profile-log-wrap">
         <table class="profile-log-table">
           <thead>
             <tr>
               <th>Час</th>
-              <th>Подія</th>
+              <th>Операція</th>
+              <th>Об’єкт</th>
               <th>Статус</th>
-              <th>Маркер</th>
+              <th>Контур</th>
             </tr>
           </thead>
           <tbody id="activityRows">
             <tr>
-              <td colspan="4" class="log-empty">Завантаження журналу...</td>
+              <td colspan="5" class="log-empty">Завантаження журналу...</td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div class="profile-log-footer">
+        <span id="logCount">Показано 0 записів</span>
       </div>
     </section>
   </main>
 
   <script>
+    const state = {
+      logs: [],
+      filteredLogs: []
+    };
+
+    const OPERATION_LABELS = {
+      login: 'Авторизація',
+      logout: 'Вихід із системи',
+      sync: 'Синхронізація профілю',
+      encrypt: 'Шифрування файлу',
+      decrypt: 'Розшифрування файлу',
+      upload: 'Завантаження файлу',
+      account_switch: 'Зміна акаунта',
+      change_account: 'Зміна акаунта',
+      profile_update: 'Оновлення профілю',
+      key_rotation: 'Оновлення ключа',
+      error: 'Помилка'
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? '—')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     function formatDateTime(value) {
       if (!value) return '—';
       const date = new Date(value);
@@ -107,26 +188,150 @@
       return status || '—';
     }
 
+    function operationLabel(operation) {
+      const key = String(operation || '').trim().toLowerCase();
+      return OPERATION_LABELS[key] || operation || 'Операція';
+    }
+
+    function formatFileSize(bytes) {
+      const value = Number(bytes || 0);
+      if (!value) return '';
+      if (value < 1024) return `${value} Б`;
+      if (value < 1024 * 1024) return `${(value / 1024).toFixed(value < 10240 ? 1 : 0)} КБ`;
+      return `${(value / 1024 / 1024).toFixed(value < 1024 * 10240 ? 1 : 0)} МБ`;
+    }
+
+    function contourValue(row) {
+      if (Array.isArray(row.contour_names) && row.contour_names.length) return row.contour_names.join(', ');
+      return row.contour_name || row.contour || row.metadata?.contour || '—';
+    }
+
+    function objectValue(row) {
+      const name = row.object_name || row.file_name || row.metadata?.fileName || row.metadata?.file_name || '—';
+      const size = row.file_size || row.metadata?.fileSize || row.metadata?.file_size;
+      const formattedSize = formatFileSize(size);
+      return formattedSize && name !== '—' ? `${name} (${formattedSize})` : name;
+    }
+
+    function statusClass(status) {
+      const value = String(status || '').toLowerCase();
+      if (value === 'success') return 'ok';
+      if (value === 'error') return 'bad';
+      if (value === 'warning') return 'warn';
+      return 'neutral';
+    }
+
+    function getLogFilters() {
+      return {
+        search: (document.getElementById('logSearch')?.value || '').trim().toLowerCase(),
+        from: document.getElementById('logDateFrom')?.value || '',
+        to: document.getElementById('logDateTo')?.value || '',
+        status: document.getElementById('logStatusFilter')?.value || 'all',
+        sort: document.getElementById('logSort')?.value || 'created_desc'
+      };
+    }
+
+    function rowDateOnly(row) {
+      if (!row.created_at) return '';
+      const date = new Date(row.created_at);
+      if (Number.isNaN(date.getTime())) return '';
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function applyLogFilters() {
+      const filters = getLogFilters();
+      let rows = [...state.logs];
+
+      if (filters.search) {
+        rows = rows.filter((row) => {
+          const haystack = [
+            operationLabel(row.operation),
+            row.operation,
+            objectValue(row),
+            row.status,
+            contourValue(row),
+            row.user_email || row.email,
+            row.error_message
+          ].join(' ').toLowerCase();
+          return haystack.includes(filters.search);
+        });
+      }
+
+      if (filters.status !== 'all') {
+        rows = rows.filter((row) => String(row.status || '').toLowerCase() === filters.status);
+      }
+
+      if (filters.from) rows = rows.filter((row) => rowDateOnly(row) >= filters.from);
+      if (filters.to) rows = rows.filter((row) => rowDateOnly(row) <= filters.to);
+
+      rows.sort((a, b) => {
+        if (filters.sort === 'created_asc') return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+        if (filters.sort === 'operation_asc') return operationLabel(a.operation).localeCompare(operationLabel(b.operation), 'uk');
+        if (filters.sort === 'object_asc') return objectValue(a).localeCompare(objectValue(b), 'uk');
+        if (filters.sort === 'contour_asc') return contourValue(a).localeCompare(contourValue(b), 'uk');
+        return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+      });
+
+      state.filteredLogs = rows;
+      renderLogs(rows);
+    }
+
     function renderLogs(rows) {
       const body = document.getElementById('activityRows');
+      const count = document.getElementById('logCount');
       if (!body) return;
 
+      if (count) {
+        const total = state.logs.length;
+        count.textContent = `Показано ${rows?.length || 0} із ${total} записів`;
+      }
+
       if (!rows || !rows.length) {
-        body.innerHTML = '<tr><td colspan="4" class="log-empty">Записів журналу поки немає.</td></tr>';
+        body.innerHTML = '<tr><td colspan="5" class="log-empty">Записів за вибраними умовами немає.</td></tr>';
         return;
       }
 
       body.innerHTML = rows.map((row) => {
-        const statusClass = row.status === 'success' ? 'ok' : row.status === 'error' ? 'bad' : 'neutral';
+        const status = row.status || 'info';
+        const object = objectValue(row);
+        const contour = contourValue(row);
+        const errorMessage = row.error_message ? `<small class="log-error-text">${escapeHtml(row.error_message)}</small>` : '';
         return `
           <tr>
-            <td>${formatDateTime(row.created_at)}</td>
-            <td>${row.action || '—'}</td>
-            <td><span class="log-status ${statusClass}">${row.status || '—'}</span></td>
-            <td>${row.marker || '—'}</td>
+            <td>${escapeHtml(formatDateTime(row.created_at))}</td>
+            <td>${escapeHtml(operationLabel(row.operation))}</td>
+            <td><span class="log-object">${escapeHtml(object)}</span>${errorMessage}</td>
+            <td><span class="log-status ${statusClass(status)}">${escapeHtml(status)}</span></td>
+            <td>${escapeHtml(contour)}</td>
           </tr>
         `;
       }).join('');
+    }
+
+    async function loadActionLogs(A) {
+      const refreshBtn = document.getElementById('logRefreshBtn');
+      if (refreshBtn) refreshBtn.disabled = true;
+
+      try {
+        const { data, error } = await A.supabase
+          .from('action_logs')
+          .select('id, user_id, email, user_email, user_name, user_role, operation, object_name, object_type, file_name, file_size, status, contour, contour_name, contour_names, duration_ms, error_message, metadata, created_at')
+          .order('created_at', { ascending: false })
+          .limit(300);
+
+        if (error) throw error;
+        state.logs = data || [];
+        applyLogFilters();
+      } catch (error) {
+        console.warn('[REBUS] action log error:', error?.message || error);
+        state.logs = [];
+        renderLogs([]);
+      } finally {
+        if (refreshBtn) refreshBtn.disabled = false;
+      }
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -160,28 +365,26 @@
         location.href = 'index.html';
       });
 
-      try {
-        let query = A.supabase
-          .from('activity_logs')
-          .select('id, marker, email, action, status, created_at')
-          .order('created_at', { ascending: false })
-          .limit(50);
+      ['logSearch', 'logDateFrom', 'logDateTo', 'logStatusFilter', 'logSort'].forEach((id) => {
+        document.getElementById(id)?.addEventListener('input', applyLogFilters);
+        document.getElementById(id)?.addEventListener('change', applyLogFilters);
+      });
 
-        if (email && marker && marker !== '—') {
-          query = query.or(`email.eq.${email},marker.eq.${marker}`);
-        } else if (email) {
-          query = query.eq('email', email);
-        } else if (marker && marker !== '—') {
-          query = query.eq('marker', marker);
-        }
+      document.getElementById('logResetBtn')?.addEventListener('click', () => {
+        ['logSearch', 'logDateFrom', 'logDateTo'].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.value = '';
+        });
+        const status = document.getElementById('logStatusFilter');
+        const sort = document.getElementById('logSort');
+        if (status) status.value = 'all';
+        if (sort) sort.value = 'created_desc';
+        applyLogFilters();
+      });
 
-        const { data, error } = await query;
-        if (error) throw error;
-        renderLogs(data || []);
-      } catch (error) {
-        console.warn('[REBUS] activity log error:', error?.message || error);
-        renderLogs([]);
-      }
+      document.getElementById('logRefreshBtn')?.addEventListener('click', () => loadActionLogs(A));
+
+      await loadActionLogs(A);
     });
   </script>
 </body>
